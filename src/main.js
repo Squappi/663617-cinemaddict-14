@@ -32,9 +32,7 @@ for (let i = 0; i < TASK_LIST; i++) {
   render(filmsContainer, createContentList(), 'beforeend');
 }
 
-const topRateElements = filmsElement.querySelectorAll('.films-list--extra');
-const topRateOne = topRateElements[0].querySelector('.films-list__container');
-const mostCommented = topRateElements[1].querySelector('.films-list__container');
+const [topRateOne,mostCommented] = filmsElement.querySelectorAll('.films-list--extra .films-list__container');
 
 for (let i = 0; i < EXTRA; i ++) {
   render(topRateOne, createContentList(), 'beforeend');
