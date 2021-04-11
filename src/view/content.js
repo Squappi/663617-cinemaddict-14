@@ -1,6 +1,6 @@
 export const createContentList = (task) => {
   const { poster, nameFilm, rating, year, duration, genre, description, comment } = task;
-  let descriptionStr = description.join('');
+  let descriptionStr = description;
 
   if (descriptionStr.length > 140) {
     descriptionStr = descriptionStr.substring(0,140).concat('...');

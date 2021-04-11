@@ -1,5 +1,3 @@
-import { noRepite } from '../mock/mock.js';
-
 export const createPopup = (film) => {
   const { ageRestriction,
     director,
@@ -11,8 +9,6 @@ export const createPopup = (film) => {
     genre,
     actors,
     description } = film;
-  const arrayGenre = genre.slice();
-  const noRepiteGenre = noRepite(arrayGenre);
   const getGenre = (genre) => `<span className="film-details__genre">${genre}</span>`;
 
   return `<section class="film-details">
@@ -68,7 +64,7 @@ export const createPopup = (film) => {
             <tr class="film-details__row">
               <td class="film-details__term">Genres</td>
               <td class="film-details__cell">
-              ${noRepiteGenre.slice(0,3).map(getGenre).join(' ')}
+              ${genre.slice(0,3).map(getGenre).join(' ')}
             </tr>
           </table>
 

@@ -1,11 +1,11 @@
-import { createSiteMenu } from './view/site-menu.js';
+import { createFilterTemplete } from './view/site-menu.js';
 import { createSortList } from './view/sort.js';
 import { createContentList } from './view/content.js';
 import { createButtonList } from './view/button.js';
 import { createUserList } from './view/user.js';
 import { createNumberOfFilms } from './view/number-of-films.js';
 import { createContainerCards } from './view/cards-container.js';
-import { createPopup } from './view/popup.js';
+// import { createPopup } from './view/popup.js';
 import { getFilter } from './mock/filter.js';
 
 import { generateCard } from './mock/mock.js';
@@ -24,7 +24,7 @@ const siteMainElement = document.querySelector('.main');
 const siteHeaderElement = document.querySelector('.header');
 const siteFooterElement = document.querySelector('.footer__statistics');
 
-render(siteMainElement, createSiteMenu(filter), 'beforeend');
+render(siteMainElement, createFilterTemplete(filter), 'beforeend');
 render(siteMainElement, createSortList(), 'beforeend');
 
 const EXTRA = 2;
@@ -42,7 +42,7 @@ for (let i = 0; i < Math.min(arrayFilms.length, FILMS_COUNT); i++) {
 
 if (arrayFilms.length > FILMS_COUNT) {
   let renderedFilmCount = FILMS_COUNT;
-  render(siteMainElement, createButtonList(), 'beforeend');
+  render(filmsContainer, createButtonList(), 'beforeend');
 
   const loadMoreButton = siteMainElement.querySelector('.films-list__show-more');
 
@@ -72,6 +72,6 @@ for (let i = 0; i < EXTRA; i ++) {
 
 render(siteFooterElement, createNumberOfFilms(), 'beforeend');
 
-const bodyElements = document.querySelector('body');
+// const bodyElements = document.querySelector('body');
 
-render(bodyElements, createPopup(arrayFilms[0]), 'beforeend');
+// render(bodyElements, createPopup(arrayFilms[0]), 'beforeend');
