@@ -1,4 +1,6 @@
-export const createPopup = (film) => {
+import {createElement} from '../utils.js';
+
+const createPopup = (film) => {
   const { ageRestriction,
     director,
     writter,
@@ -9,6 +11,7 @@ export const createPopup = (film) => {
     genre,
     actors,
     description } = film;
+
   const getGenre = (genre) => `<span className="film-details__genre">${genre}</span>`;
 
   return `<section class="film-details">
@@ -128,3 +131,22 @@ export const createPopup = (film) => {
   </form>
 </section>`;
 };
+
+export default class SiteCreatePopup {
+  constructor(popup) {
+    this.popupElement = popup;
+    this._element = null;
+  }
+  getTemplate() {
+    return createPopup(this.popupElement);
+  }
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+  removeElement() {
+    this._element = null;
+  }
+}

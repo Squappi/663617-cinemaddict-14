@@ -1,4 +1,6 @@
-export const createContentList = (task) => {
+import { createElement } from '../utils.js';
+
+const createContentList = (task) => {
   const { poster, nameFilm, rating, year, duration, genre, description, comment } = task;
   let descriptionStr = description;
 
@@ -24,3 +26,22 @@ export const createContentList = (task) => {
     </div>
   </article>`;
 };
+
+export default class SiteCreateList {
+  constructor(task) {
+    this._content = task;
+    this._element = null;
+  }
+  getTemplate() {
+    return createContentList(this._content);
+  }
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+  removeElement() {
+    this._element = null;
+  }
+}

@@ -1,4 +1,6 @@
-export const createContainerCards = () => {
+import { createElement } from '../utils.js';
+
+const createContainerCards = () => {
   return `<section class="films">
   <section class="films-list">
     <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
@@ -22,3 +24,21 @@ export const createContainerCards = () => {
   </section>
 </section>`;
 };
+
+export default class SiteCreateCards {
+  constructor() {
+    this._element = null;
+  }
+  getTemplate() {
+    return createContainerCards();
+  }
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+  removeElement() {
+    this._element = null;
+  }
+}

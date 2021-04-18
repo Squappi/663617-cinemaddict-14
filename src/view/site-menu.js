@@ -1,8 +1,7 @@
-export const createSiteMenu = (filter) => {
+const createSiteMenu = (filter) => {
   const { name, count } = filter;
 
-  return `
-  <a href="#${name}" class="main-navigation__item">${name} <span class="main-navigation__item-count">${count}</span></a>`;
+  return `<a href="#${name}" class="main-navigation__item">${name} <span class="main-navigation__item-count">${count}</span></a>`;
 };
 
 export const createFilterTemplete = (filterItems) => {
