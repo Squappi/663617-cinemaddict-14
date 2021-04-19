@@ -1,5 +1,5 @@
 import SiteMenuSort from './view/sort.js';
-import  SiteCreateList  from './view/content.js';
+import  SiteCreateView  from './view/content.js';
 import  SiteButton  from './view/button.js';
 import SiteMenuUser  from './view/user.js';
 import SiteCreateNumberFilms from './view/number-of-films.js';
@@ -32,8 +32,8 @@ const filmsElement = siteMainElement.querySelector('.films');
 const filmsList = filmsElement.querySelector('.films-list');
 const filmsContainer = filmsList.querySelector('.films-list__container');
 
-const renderTask = (taskForRender, position, before = null) => {
-  const task = new SiteCreateList(taskForRender);
+const renderTask = (positionElement ,taskForRender, position, before = null) => {
+  const task = new SiteCreateView(taskForRender);
   task.getElement().addEventListener('click', (evt) =>{
     evt.preventDefault();
     const popupTask = new SiteCreatePopup(taskForRender);
@@ -54,27 +54,27 @@ const renderTask = (taskForRender, position, before = null) => {
     });
   });
   if (position === renderPosition.BEFOREEND) {
-    renderElement(filmsContainer,task.getElement(), position);
+    renderElement(positionElement,task.getElement(), position);
   } else {
-    renderElement(filmsContainer,task.getElement(), position, before);
+    renderElement(positionElement,task.getElement(), position, before);
   }
 };
 
 for (let i = 0; i < Math.min(arrayFilms.length, FILMS_COUNT); i++) {
-  renderTask(arrayFilms[i], renderPosition.BEFOREEND);
+  renderTask(filmsContainer, arrayFilms[i], renderPosition.BEFOREEND);
 }
 
 let renderedFilmCount = FILMS_COUNT;
 if (arrayFilms.length > FILMS_COUNT) {
   const loadMoreButton = new SiteButton();
-  renderElement(filmsContainer, loadMoreButton.getElement(), renderPosition.BEFOREEND);
+  renderElement(filmsList, loadMoreButton.getElement(), renderPosition.BEFOREEND);
 
 
   loadMoreButton.getElement().addEventListener('click', (evt) => {
     evt.preventDefault();
     arrayFilms
       .slice(renderedFilmCount, renderedFilmCount + FILMS_COUNT)
-      .forEach((task) => renderTask(task, renderPosition.BEFOREBEGIN, loadMoreButton.getElement()));
+      .forEach((task) => renderTask(filmsContainer,task, renderPosition.BEFOREBEGIN));
     renderedFilmCount += FILMS_COUNT;
     if (renderedFilmCount >= arrayFilms.length) {
       loadMoreButton.getElement().remove();
@@ -86,11 +86,11 @@ if (arrayFilms.length > FILMS_COUNT) {
 const [topRateOne,mostCommented] = filmsElement.querySelectorAll('.films-list--extra .films-list__container');
 
 for (let i = 0; i < EXTRA; i ++) {
-  renderElement(topRateOne,new SiteCreateList(arrayFilms[i]).getElement(), renderPosition.BEFOREEND);
+  renderTask(topRateOne,arrayFilms[i], renderPosition.BEFOREEND);
 }
 
 for (let i = 0; i < EXTRA; i ++) {
-  renderElement(mostCommented,new SiteCreateList(arrayFilms[i]).getElement(), renderPosition.BEFOREEND);
+  renderTask(mostCommented,arrayFilms[i], renderPosition.BEFOREEND);
 }
 
 renderElement(siteFooterElement, new SiteCreateNumberFilms().getElement(), renderPosition.BEFOREEND);

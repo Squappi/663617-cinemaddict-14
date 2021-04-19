@@ -27,7 +27,7 @@ const createContentList = (task) => {
   </article>`;
 };
 
-export default class SiteCreateList {
+export default class SiteCreateView {
   constructor(task) {
     this._content = task;
     this._element = null;
