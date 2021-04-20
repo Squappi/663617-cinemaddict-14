@@ -6,6 +6,7 @@ import SiteCreateNumberFilms from './view/number-of-films.js';
 import  SiteCreateCards from './view/cards-container.js';
 import  SiteCreatePopup  from './view/popup.js';
 import SiteMenuFilter  from './mock/filter.js';
+import EmptyMessage from './view/empty.js';
 
 import { generateCard } from './mock/mock.js';
 import { renderPosition, renderElement } from './utils.js';
@@ -62,6 +63,10 @@ const renderTask = (positionElement ,taskForRender, position, before = null) => 
 
 for (let i = 0; i < Math.min(arrayFilms.length, FILMS_COUNT); i++) {
   renderTask(filmsContainer, arrayFilms[i], renderPosition.BEFOREEND);
+}
+
+if(arrayFilms.length === 0) {
+  renderElement(filmsList, new EmptyMessage().getElement(), renderPosition.BEFOREEND);
 }
 
 let renderedFilmCount = FILMS_COUNT;
