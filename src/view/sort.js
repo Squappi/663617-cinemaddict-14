@@ -1,4 +1,4 @@
-import { createElement } from '../utils.js';
+import Abstract from './utils-abstract.js';
 
 const createSortList = () => {
   return `<ul class="sort">
@@ -8,20 +8,8 @@ const createSortList = () => {
 </ul>`;
 };
 
-export default class SiteButton {
-  constructor() {
-    this._element = null;
-  }
+export default class SiteButton extends Abstract{
   getTemplate() {
     return createSortList();
-  }
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-  removeElement() {
-    this._element = null;
   }
 }

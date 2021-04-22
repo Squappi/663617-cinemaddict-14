@@ -1,5 +1,5 @@
-import {createElement} from '../utils.js';
-import {createFilterTemplete} from '../view/site-menu.js';
+import { createFilterTemplete } from '../view/site-menu.js';
+import Abstract from '../view/utils-abstract.js';
 
 const filmToFilterMap = {
   watchlist: (films) => films.filter((film) => film.allMovies.watchList).length,
@@ -16,21 +16,12 @@ const getFilter = (films) => {
   });
 };
 
-export default class SiteMenuFilter {
+export default class SiteMenuFilter extends Abstract{
   constructor(filters) {
+    super();
     this._filter = filters;
-    this._element = null;
   }
   getTemplate() {
     return createFilterTemplete(getFilter(this._filter));
-  }
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-  removeElement() {
-    this._element = null;
   }
 }

@@ -1,4 +1,4 @@
-import { createElement } from '../utils.js';
+import Abstract from './utils-abstract.js';
 
 const createContainerCards = () => {
   return `<section class="films">
@@ -25,20 +25,8 @@ const createContainerCards = () => {
 </section>`;
 };
 
-export default class SiteCreateCards {
-  constructor() {
-    this._element = null;
-  }
+export default class SiteCreateCards extends Abstract{
   getTemplate() {
     return createContainerCards();
-  }
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-  removeElement() {
-    this._element = null;
   }
 }

@@ -1,4 +1,4 @@
-import {createElement} from '../utils.js';
+import Abstract from './utils-abstract.js';
 
 const createPopup = (film) => {
   const { ageRestriction,
@@ -132,21 +132,35 @@ const createPopup = (film) => {
 </section>`;
 };
 
-export default class SiteCreatePopup {
+export default class SiteCreatePopup extends Abstract{
   constructor(popup) {
-    this.popupElement = popup;
-    this._element = null;
+    super();
+    this._popupElement = popup;
+
+    this._editClickHandler = this._editClickHandler.bind(this);
+    this._editClickPopup = this._editClickPopup.bind(this);
   }
   getTemplate() {
-    return createPopup(this.popupElement);
+    return createPopup(this._popupElement);
   }
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
+
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick(evt);
   }
-  removeElement() {
-    this._element = null;
+
+  _editClickPopup(evt) {
+    evt.preventDefault();
+    this._callback.editClick(evt);
+  }
+
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._editClickHandler);
+  }
+
+  setEditClickKeydown(callback) {
+    this._callback.editClick = callback;
+    this.getElement().addEventListener('keydown', this._editClickPopup);
   }
 }

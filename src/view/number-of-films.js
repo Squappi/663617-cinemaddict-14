@@ -1,23 +1,17 @@
-import { createElement } from '../utils.js';
+import Abstract from './utils-abstract.js';
 
-const createNumberOfFilms = () => {
-  return '<p>130 291 movies inside</p>';
+const createNumberOfFilms = (task) => {
+  return `<section class="footer__statistics">
+      <p>${task} movies inside</p>
+  </section>`;
 };
 
-export default class SiteCreateNumberFilms {
-  constructor() {
-    this._element = null;
+export default class SiteCreateNumberFilms extends Abstract {
+  constructor(arr) {
+    super();
+    this.newArr = arr;
   }
   getTemplate() {
-    return createNumberOfFilms(this.popupElement);
-  }
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-  removeElement() {
-    this._element = null;
+    return createNumberOfFilms(this.newArr);
   }
 }

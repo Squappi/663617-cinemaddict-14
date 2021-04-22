@@ -1,4 +1,4 @@
-import { createElement } from '../utils.js';
+import Abstract from './utils-abstract.js';
 
 const createContentList = (task) => {
   const { poster, nameFilm, rating, year, duration, genre, description, comment } = task;
@@ -27,21 +27,24 @@ const createContentList = (task) => {
   </article>`;
 };
 
-export default class SiteCreateView {
+export default class SiteCreateView extends Abstract{
   constructor(task) {
+    super();
     this._content = task;
-    this._element = null;
+
+    this._editHandlerForm = this._editHandlerForm.bind(this);
   }
   getTemplate() {
     return createContentList(this._content);
   }
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
+
+  _editHandlerForm(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
   }
-  removeElement() {
-    this._element = null;
+
+  setEditHandlerForm(callback) {
+    this._callback.editClick = callback;
+    this.getElement().addEventListener('click', this._editHandlerForm);
   }
 }
