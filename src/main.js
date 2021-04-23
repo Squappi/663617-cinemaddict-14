@@ -38,8 +38,7 @@ const renderTask = (positionElement ,taskForRender, position) => {
   const task = new SiteCreateView(taskForRender);
   const popupTask = new SiteCreatePopup(taskForRender);
 
-  const closePopup = (evt) => {
-    evt.preventDefault();
+  const closePopup = () => {
     popupTask.getElement().remove();
     popupTask.removeElement();
     document.removeEventListener('keydown', closeEscPopup);
@@ -47,7 +46,8 @@ const renderTask = (positionElement ,taskForRender, position) => {
 
   const closeEscPopup = (evt) => {
     if (evt.key === 'Escape') {
-      closePopup(evt);
+      evt.preventDefault();
+      closePopup();
     }
   };
   task.setEditHandlerForm(() => {

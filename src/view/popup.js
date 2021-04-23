@@ -146,12 +146,12 @@ export default class SiteCreatePopup extends Abstract{
 
   _editClickHandler(evt) {
     evt.preventDefault();
-    this._callback.editClick(evt);
+    this._callback.editClick();
   }
 
   _editClickPopup(evt) {
     evt.preventDefault();
-    this._callback.editClick(evt);
+    this._callback.editClick();
   }
 
   setEditClickHandler(callback) {
