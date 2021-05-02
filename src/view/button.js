@@ -20,7 +20,7 @@ export default class SiteMenuSort extends Abstract{
     this._callback.editClick();
   }
 
-  setClickbutton(callback) {
+  setClickHandler(callback) {
     this._callback.editClick = callback;
     this.getElement().addEventListener('click', this._editClickButton);
   }

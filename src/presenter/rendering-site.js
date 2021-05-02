@@ -1,13 +1,13 @@
 import SiteMenuSort from '../view/sort.js';
-import  SiteCreateView  from '../view/content.js';
-import  SiteButton  from '../view/button.js';
-import SiteMenuUser  from '../view/user.js';
+import SiteCreateView from '../view/content.js';
+import SiteButton from '../view/button.js';
+import SiteMenuUser from '../view/user.js';
 import SiteCreateNumberFilms from '../view/number-of-films.js';
-import  SiteCreateCards from '../view/cards-container.js';
-import  SiteCreatePopup  from '../view/popup.js';
-import SiteMenuFilter  from '../mock/filter.js';
+import SiteCreateCards from '../view/cards-container.js';
+import SiteCreatePopup from '../view/popup.js';
+import SiteMenuFilter from '../mock/filter.js';
 import EmptyMessage from '../view/empty.js';
-import { remove, renderElement, renderPosition } from '../utils.js';
+import {remove, renderElement, renderPosition} from '../utils.js';
 
 
 const FILMS_COUNT = 5;
@@ -26,16 +26,16 @@ export default class renderingSite {
     this._rendreNumderFilms = new SiteCreateNumberFilms();
     this._renderContainerCards = new SiteCreateCards();
     this._renderPopupView = new SiteCreatePopup();
-    this._renderFilterView = new SiteMenuFilter();
     this._renderEmptyMessage = new EmptyMessage();
 
-    this._editClickButton = this._editClickButton.bind(this);
+    this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
   }
 
-  init(renderSite) {
-    this._renderSite = renderSite.slice();
+  init(films) {
+    this._renderSite = films.slice();
+    this._renderFilterView = new SiteMenuFilter(this._renderSite);
 
-    this._renderFitter(this._renderSite);
+    this._renderFitter();
     this._renderSort();
     this._renderUser();
 
@@ -47,63 +47,63 @@ export default class renderingSite {
       this._renderComponent(this._renderFilmsList, this._renderSite[i], renderPosition.BEFOREEND);
     }
 
-    [this._topRateOne,this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
+    [this._topRateOne, this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
 
-    if(this._renderSite.length >= 2) {
-      for (let i = 0; i < EXTRA; i ++) {
-        this._renderComponent(this._topRateOne,this._renderSite[i], renderPosition.BEFOREEND);
+    if (this._renderSite.length >= 2) {
+      for (let i = 0; i < EXTRA; i++) {
+        this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND);
       }
 
-      for (let i = 0; i < EXTRA; i ++) {
-        this._renderComponent(this._mostCommented,this._renderSite[i], renderPosition.BEFOREEND);
+      for (let i = 0; i < EXTRA; i++) {
+        this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND);
       }
     }
 
     this._renderLoadMoreButton();
 
-    if(this._renderSite.length === 0) {
+    if (this._renderSite.length === 0) {
       this._renderMessage();
     }
 
     this._renderNumderFilm();
   }
 
-  _renderFitter(filter) {
-    renderElement(this._renderingMarkup,this._renderFilterView.getElement(), renderPosition.BEFOREEND);
+  _renderFitter() {
+    renderElement(this._renderingMarkup, this._renderFilterView.getElement(), renderPosition.BEFOREEND);
   }
 
   _renderSort() {
-    renderElement(this._renderingMarkup,this._renderingSortMenu.getElement(), renderPosition.BEFOREEND);
+    renderElement(this._renderingMarkup, this._renderingSortMenu.getElement(), renderPosition.BEFOREEND);
   }
 
   _renderUser() {
-    renderElement(this._renderingHeader, this._renderUserView.getElement(),renderPosition.BEFOREEND);
+    renderElement(this._renderingHeader, this._renderUserView.getElement(), renderPosition.BEFOREEND);
   }
 
   // BUTTON RENDERING
 
   _renderContainerTasks(from, to) {
-    this._renderingMarkup
+    this._renderSite
       .slice(from, to)
-      .forEach((containerTasks) => this._renderContainerTasks(containerTasks));
+      .forEach((film) => this._renderComponent(this._renderFilmsList, film, renderPosition.BEFOREEND));
   }
 
   _handleLoadMoreButtonClick() {
     this._renderContainerTasks(this._renderFilmsCount, this._renderFilmsCount + FILMS_COUNT);
     this._renderFilmsCount += FILMS_COUNT;
 
-    if(this._renderFilmsCount >= this._renderSite.length) {
+    if (this._renderFilmsCount >= this._renderSite.length) {
       remove(this._renderButton);
     }
   }
 
   _renderLoadMoreButton() {
-    renderElement(this._filmsList, this._renderButton, renderPosition.BEFOREEND);
+    renderElement(this._filmsList, this._renderButton.getElement(), renderPosition.BEFOREEND);
 
     this._renderButton.setClickHandler(this._handleLoadMoreButtonClick);
   }
 
-  _renderComponent(positionElementMenu ,taskForRender, position) {
+  _renderComponent(positionElementMenu, taskForRender, position) {
     const task = new SiteCreateView(taskForRender);
     const popupTask = new SiteCreatePopup(taskForRender);
 
