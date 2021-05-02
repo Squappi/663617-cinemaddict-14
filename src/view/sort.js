@@ -8,7 +8,7 @@ const createSortList = () => {
 </ul>`;
 };
 
-export default class SiteButton extends Abstract{
+export default class SiteMenuSort extends Abstract{
   getTemplate() {
     return createSortList();
   }
