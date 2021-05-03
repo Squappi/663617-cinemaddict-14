@@ -2,7 +2,7 @@ import SiteCreateView from '../view/content.js';
 import SiteCreatePopup from '../view/popup.js';
 import {renderElement} from '../utils.js';
 
-export default class popupTask {
+export default class popupPresenter {
   constructor(taskList) {
     this._taskList = taskList;
 
