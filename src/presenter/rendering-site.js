@@ -22,18 +22,23 @@ export default class GenerateSite {
     this._renderFilmsCount = FILMS_COUNT;
 
     this._renderingSortMenu = new SiteMenuSort();
-    this._renderComponentView = new SiteCreateView();
+    //this._renderComponentView = new SiteCreateView();
     this._renderButton = new SiteButton();
     this._renderUserView = new SiteMenuUser();
     this._renderNumderFilms = new SiteCreateNumberFilms();
     this._renderContainerCards = new SiteCreateCards();
-    this._renderPopupView = new SiteCreatePopup();
+    //this._renderPopupView = new SiteCreatePopup();
     this._renderEmptyMessage = new EmptyMessage();
 
-    this._task = null;
-    this._popupTask = null;
+    //this._task = null;
+    //this._popupTask = null;
 
     this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
+    this._changeData = this._changeData.bind(this);
+
+    this._mapMain = new Map();
+    this._mapTopRate = new Map();
+    this._mapTopComment = new Map();
   }
 
   init(films) {
@@ -53,18 +58,18 @@ export default class GenerateSite {
     // render Cards
 
     for (let i = 0; i < Math.min(this._renderSite.length, FILMS_COUNT); i++) {
-      this._renderComponent(this._renderFilmsList, this._renderSite[i], renderPosition.BEFOREEND);
+      this._mapMain.set(this._renderSite[i].id, this._renderComponent(this._renderFilmsList, this._renderSite[i], renderPosition.BEFOREEND));
     }
 
     [this._topRateOne, this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
 
     if (this._renderSite.length >= 2) {
       for (let i = 0; i < EXTRA; i++) {
-        this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND);
+        this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND))
       }
 
       for (let i = 0; i < EXTRA; i++) {
-        this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND);
+        this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND))
       }
     }
 
@@ -75,6 +80,21 @@ export default class GenerateSite {
     }
 
     this._renderNumderFilm();
+  }
+
+  _changeData(task) {
+    //+update task in this._renderSite
+    if (this._mapMain.has(task.id)) {
+      this._mapMain.get(task.id).init(task);
+    }
+
+    if (this._mapTopComment.has(task.id)) {
+      this._mapTopComment.get(task.id).init(task);
+    }
+
+    if (this._mapTopRate.has(task.id)) {
+      this._mapTopRate.get(task.id).init(task);
+    }
   }
 
   _renderFitter() {
@@ -112,9 +132,10 @@ export default class GenerateSite {
     this._renderButton.setClickHandler(this._handleLoadMoreButtonClick);
   }
 
-  _renderComponent(positionElementMenu, taskForRender, position) {
-    const popupTaskPresenter = new popupPresenter(taskForRender);
-    popupTaskPresenter.init(positionElementMenu, taskForRender, position);
+  _renderComponent(positionElementMenu, taskForRender) {
+    const popupTaskPresenter = new popupPresenter(positionElementMenu, this._changeData);
+    popupTaskPresenter.init(taskForRender);
+    return popupTaskPresenter;
   }
 
   _renderNumderFilm() {
