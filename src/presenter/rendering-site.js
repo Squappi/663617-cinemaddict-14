@@ -25,7 +25,7 @@ export default class GenerateSite {
     //this._renderComponentView = new SiteCreateView();
     this._renderButton = new SiteButton();
     this._renderUserView = new SiteMenuUser();
-    this._renderNumderFilms = new SiteCreateNumberFilms();
+
     this._renderContainerCards = new SiteCreateCards();
     //this._renderPopupView = new SiteCreatePopup();
     this._renderEmptyMessage = new EmptyMessage();
@@ -43,6 +43,7 @@ export default class GenerateSite {
 
   init(films) {
     this._renderSite = films.slice();
+    this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
     this._renderFilterView = new SiteMenuFilter(this._renderSite);
 
     this._renderFitter();
@@ -141,10 +142,10 @@ export default class GenerateSite {
   }
 
   _renderNumderFilm() {
-    renderElement(this._renderingMarkup, this._renderNumderFilms, renderPosition.BEFOREEND);
+    renderElement(this._renderingMarkup, this._renderNumderFilms.getElement(), renderPosition.BEFOREEND);
   }
 
   _renderMessage() {
-    renderElement(this._renderingMarkup, this._renderEmptyMessage, renderPosition.BEFOREEND);
+    renderElement(this._renderingMarkup, this._renderEmptyMessage.getElement(), renderPosition.BEFOREEND);
   }
 }
