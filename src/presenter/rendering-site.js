@@ -7,13 +7,15 @@ import SiteCreateCards from '../view/cards-container.js';
 import SiteCreatePopup from '../view/popup.js';
 import SiteMenuFilter from '../mock/filter.js';
 import EmptyMessage from '../view/empty.js';
+
+import popupPresenter from './popup-task.js';
 import {remove, renderElement, renderPosition} from '../utils.js';
 
 
 const FILMS_COUNT = 5;
 const EXTRA = 2;
 
-export default class renderingSite {
+export default class GenerateSite {
   constructor(renderContainer, renderHeader) {
     this._renderingMarkup = renderContainer;
     this._renderingHeader = renderHeader;
@@ -23,10 +25,13 @@ export default class renderingSite {
     this._renderComponentView = new SiteCreateView();
     this._renderButton = new SiteButton();
     this._renderUserView = new SiteMenuUser();
-    this._rendreNumderFilms = new SiteCreateNumberFilms();
+    this._renderNumderFilms = new SiteCreateNumberFilms();
     this._renderContainerCards = new SiteCreateCards();
     this._renderPopupView = new SiteCreatePopup();
     this._renderEmptyMessage = new EmptyMessage();
+
+    this._task = null;
+    this._popupTask = null;
 
     this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
   }
@@ -39,9 +44,13 @@ export default class renderingSite {
     this._renderSort();
     this._renderUser();
 
+    // render ContainerCards
+
     renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
     this._filmsList = this._renderingMarkup.querySelector('.films-list');
     this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
+
+    // render Cards
 
     for (let i = 0; i < Math.min(this._renderSite.length, FILMS_COUNT); i++) {
       this._renderComponent(this._renderFilmsList, this._renderSite[i], renderPosition.BEFOREEND);
@@ -104,32 +113,12 @@ export default class renderingSite {
   }
 
   _renderComponent(positionElementMenu, taskForRender, position) {
-    const task = new SiteCreateView(taskForRender);
-    const popupTask = new SiteCreatePopup(taskForRender);
-
-    const closePopup = () => {
-      popupTask.getElement().remove();
-      popupTask.removeElement();
-      document.removeEventListener('keydown', closeEscPopup);
-    };
-
-    const closeEscPopup = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        closePopup();
-      }
-    };
-    task.setEditHandlerForm(() => {
-      document.body.appendChild(popupTask.getElement());
-      popupTask.setEditClickHandler(closePopup);
-      document.addEventListener('keydown', closeEscPopup);
-    });
-
-    renderElement(positionElementMenu, task.getElement(), position);
+    const popupTaskPresenter = new popupPresenter(taskForRender);
+    popupTaskPresenter.init(positionElementMenu, taskForRender, position);
   }
 
   _renderNumderFilm() {
-    renderElement(this._renderingMarkup, this._rendreNumderFilms, renderPosition.BEFOREEND);
+    renderElement(this._renderingMarkup, this._renderNumderFilms, renderPosition.BEFOREEND);
   }
 
   _renderMessage() {
