@@ -114,7 +114,9 @@ export default class GenerateSite {
   _renderContainerTasks(from, to) {
     this._renderSite
       .slice(from, to)
-      .forEach((film) => this._renderComponent(this._renderFilmsList, film, renderPosition.BEFOREEND));
+      .forEach((film) => {
+        this._mapMain.set(film.id, this._renderComponent(this._renderFilmsList, film, renderPosition.BEFOREEND));
+      });
   }
 
   _handleLoadMoreButtonClick() {
