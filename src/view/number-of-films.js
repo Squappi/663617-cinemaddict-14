@@ -12,6 +12,6 @@ export default class SiteCreateNumberFilms extends Abstract {
     this.newArr = arr;
   }
   getTemplate() {
-    return createNumberOfFilms(this.newArr);
+    return createNumberOfFilms(this.newArr.length);
   }
 }

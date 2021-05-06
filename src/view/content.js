@@ -1,11 +1,11 @@
 import Abstract from './utils-abstract.js';
 
 const createContentList = (task) => {
-  const { poster, nameFilm, rating, year, duration, genre, description, comment } = task;
+  const {poster, nameFilm, rating, year, duration, genre, description, comment} = task;
   let descriptionStr = description;
 
   if (descriptionStr.length > 140) {
-    descriptionStr = descriptionStr.substring(0,140).concat('...');
+    descriptionStr = descriptionStr.substring(0, 140).concat('...');
   }
 
   return `<article class="film-card">
@@ -27,13 +27,14 @@ const createContentList = (task) => {
   </article>`;
 };
 
-export default class SiteCreateView extends Abstract{
+export default class SiteCreateView extends Abstract {
   constructor(task) {
     super();
     this._content = task;
 
     this._editHandlerForm = this._editHandlerForm.bind(this);
   }
+
   getTemplate() {
     return createContentList(this._content);
   }

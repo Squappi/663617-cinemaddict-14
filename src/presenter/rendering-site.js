@@ -1,10 +1,8 @@
 import SiteMenuSort from '../view/sort.js';
-import SiteCreateView from '../view/content.js';
 import SiteButton from '../view/button.js';
 import SiteMenuUser from '../view/user.js';
 import SiteCreateNumberFilms from '../view/number-of-films.js';
 import SiteCreateCards from '../view/cards-container.js';
-import SiteCreatePopup from '../view/popup.js';
 import SiteMenuFilter from '../mock/filter.js';
 import EmptyMessage from '../view/empty.js';
 
@@ -22,22 +20,22 @@ export default class GenerateSite {
     this._renderFilmsCount = FILMS_COUNT;
 
     this._renderingSortMenu = new SiteMenuSort();
-    this._renderComponentView = new SiteCreateView();
     this._renderButton = new SiteButton();
     this._renderUserView = new SiteMenuUser();
-    this._renderNumderFilms = new SiteCreateNumberFilms();
     this._renderContainerCards = new SiteCreateCards();
-    this._renderPopupView = new SiteCreatePopup();
     this._renderEmptyMessage = new EmptyMessage();
 
-    this._task = null;
-    this._popupTask = null;
-
     this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
+    this._changeData = this._changeData.bind(this);
+
+    this._mapMain = new Map();
+    this._mapTopRate = new Map();
+    this._mapTopComment = new Map();
   }
 
   init(films) {
     this._renderSite = films.slice();
+    this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
     this._renderFilterView = new SiteMenuFilter(this._renderSite);
 
     this._renderFitter();
@@ -53,18 +51,18 @@ export default class GenerateSite {
     // render Cards
 
     for (let i = 0; i < Math.min(this._renderSite.length, FILMS_COUNT); i++) {
-      this._renderComponent(this._renderFilmsList, this._renderSite[i], renderPosition.BEFOREEND);
+      this._mapMain.set(this._renderSite[i].id, this._renderComponent(this._renderFilmsList, this._renderSite[i], renderPosition.BEFOREEND));
     }
 
     [this._topRateOne, this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
 
     if (this._renderSite.length >= 2) {
       for (let i = 0; i < EXTRA; i++) {
-        this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND);
+        this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND));
       }
 
       for (let i = 0; i < EXTRA; i++) {
-        this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND);
+        this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND));
       }
     }
 
@@ -75,6 +73,21 @@ export default class GenerateSite {
     }
 
     this._renderNumderFilm();
+  }
+
+  _changeData(task) {
+    //+update task in this._renderSite
+    if (this._mapMain.has(task.id)) {
+      this._mapMain.get(task.id).init(task);
+    }
+
+    if (this._mapTopComment.has(task.id)) {
+      this._mapTopComment.get(task.id).init(task);
+    }
+
+    if (this._mapTopRate.has(task.id)) {
+      this._mapTopRate.get(task.id).init(task);
+    }
   }
 
   _renderFitter() {
@@ -94,7 +107,9 @@ export default class GenerateSite {
   _renderContainerTasks(from, to) {
     this._renderSite
       .slice(from, to)
-      .forEach((film) => this._renderComponent(this._renderFilmsList, film, renderPosition.BEFOREEND));
+      .forEach((film) => {
+        this._mapMain.set(film.id, this._renderComponent(this._renderFilmsList, film, renderPosition.BEFOREEND));
+      });
   }
 
   _handleLoadMoreButtonClick() {
@@ -112,16 +127,18 @@ export default class GenerateSite {
     this._renderButton.setClickHandler(this._handleLoadMoreButtonClick);
   }
 
-  _renderComponent(positionElementMenu, taskForRender, position) {
-    const popupTaskPresenter = new popupPresenter(taskForRender);
-    popupTaskPresenter.init(positionElementMenu, taskForRender, position);
+  _renderComponent(positionElementMenu, taskForRender) {
+    const popupTaskPresenter = new popupPresenter(positionElementMenu, this._changeData);
+    popupTaskPresenter.init(taskForRender);
+    popupTaskPresenter[taskForRender.id] = popupTaskPresenter;
+    return popupTaskPresenter;
   }
 
   _renderNumderFilm() {
-    renderElement(this._renderingMarkup, this._renderNumderFilms, renderPosition.BEFOREEND);
+    renderElement(this._renderingMarkup, this._renderNumderFilms.getElement(), renderPosition.BEFOREEND);
   }
 
   _renderMessage() {
-    renderElement(this._renderingMarkup, this._renderEmptyMessage, renderPosition.BEFOREEND);
+    renderElement(this._renderingMarkup, this._renderEmptyMessage.getElement(), renderPosition.BEFOREEND);
   }
 }
