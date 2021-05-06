@@ -1,7 +1,8 @@
 import Abstract from './utils-abstract.js';
 
 const createPopup = (film) => {
-  const { ageRestriction,
+  const {
+    ageRestriction,
     director,
     writter,
     rating,
@@ -10,7 +11,11 @@ const createPopup = (film) => {
     duration,
     genre,
     actors,
-    description } = film;
+    description,
+    allMovies: {
+      watchList: watchList,
+    },
+  } = film;
 
   const getGenre = (genre) => `<span className="film-details__genre">${genre}</span>`;
 
@@ -67,7 +72,7 @@ const createPopup = (film) => {
             <tr class="film-details__row">
               <td class="film-details__term">Genres</td>
               <td class="film-details__cell">
-              ${genre.slice(0,3).map(getGenre).join(' ')}
+              ${genre.slice(0, 3).map(getGenre).join(' ')}
             </tr>
           </table>
 
@@ -78,7 +83,7 @@ const createPopup = (film) => {
       </div>
 
       <section class="film-details__controls">
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist"${watchList ? ' checked' : ''}>
         <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
         <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
@@ -132,35 +137,35 @@ const createPopup = (film) => {
 </section>`;
 };
 
-export default class SiteCreatePopup extends Abstract{
-  constructor(popup) {
+export default class SiteCreatePopup extends Abstract {
+  constructor(film) {
     super();
-    this._popupElement = popup;
+    this._film = film;
 
-    this._editClickHandler = this._editClickHandler.bind(this);
-    this._editClickPopup = this._editClickPopup.bind(this);
+    this._closeClickHandler = this._closeClickHandler.bind(this);
+    this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
   }
+
   getTemplate() {
-    return createPopup(this._popupElement);
+    return createPopup(this._film);
   }
 
-  _editClickHandler(evt) {
+  _closeClickHandler(evt) {
     evt.preventDefault();
-    this._callback.editClick();
+    this._callback.closeClick();
   }
 
-  _editClickPopup(evt) {
-    evt.preventDefault();
-    this._callback.editClick();
+  setCloseHandler(callback) {
+    this._callback.closeClick = callback;
+    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._closeClickHandler);
   }
 
-  setEditClickHandler(callback) {
-    this._callback.editClick = callback;
-    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._editClickHandler);
+  _addToWatchListHandler() {
+    this._callback.addToWatchList();
   }
 
-  setEditClickKeydown(callback) {
-    this._callback.editClick = callback;
-    this.getElement().addEventListener('keydown', this._editClickPopup);
+  setAddToWatchListHandler(callback) {
+    this._callback.addToWatchList = callback;
+    this.getElement().querySelector('#watchlist').addEventListener('click', this._addToWatchListHandler);
   }
 }

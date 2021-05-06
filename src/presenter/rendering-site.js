@@ -20,27 +20,14 @@ export default class GenerateSite {
     this._renderFilmsCount = FILMS_COUNT;
 
     this._renderingSortMenu = new SiteMenuSort();
-<<<<<<< HEAD
+
     this._renderButton = new SiteButton();
     this._renderUserView = new SiteMenuUser();
     this._renderContainerCards = new SiteCreateCards();
     this._renderEmptyMessage = new EmptyMessage();
-
-=======
-    //this._renderComponentView = new SiteCreateView();
-    this._renderButton = new SiteButton();
-    this._renderUserView = new SiteMenuUser();
-
-    this._renderContainerCards = new SiteCreateCards();
-    //this._renderPopupView = new SiteCreatePopup();
-    this._renderEmptyMessage = new EmptyMessage();
-
-    //this._task = null;
-    //this._popupTask = null;
-
->>>>>>> f37130ea1181aae5e07c48e17a7857312fcb9207
     this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
     this._changeData = this._changeData.bind(this);
+    this._changeMode = this._changeMode.bind(this);
 
     this._mapMain = new Map();
     this._mapTopRate = new Map();
@@ -72,19 +59,12 @@ export default class GenerateSite {
 
     if (this._renderSite.length >= 2) {
       for (let i = 0; i < EXTRA; i++) {
-<<<<<<< HEAD
         this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND));
       }
 
-      for (let i = 0; i < EXTRA; i++) {
-        this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND));
-=======
-        this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND))
-      }
 
       for (let i = 0; i < EXTRA; i++) {
         this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND))
->>>>>>> f37130ea1181aae5e07c48e17a7857312fcb9207
       }
     }
 
@@ -95,6 +75,13 @@ export default class GenerateSite {
     }
 
     this._renderNumderFilm();
+  }
+
+  _changeMode() {
+    for (const presenter of this._mapMain.values()) {
+      presenter.resetView();
+    }
+    //обход всех остальных popup presenters и вызов resetView
   }
 
   _changeData(task) {
@@ -150,12 +137,9 @@ export default class GenerateSite {
   }
 
   _renderComponent(positionElementMenu, taskForRender) {
-    const popupTaskPresenter = new popupPresenter(positionElementMenu, this._changeData);
+    const popupTaskPresenter = new popupPresenter(positionElementMenu, this._changeData, this._changeMode);
     popupTaskPresenter.init(taskForRender);
-<<<<<<< HEAD
     popupTaskPresenter[taskForRender.id] = popupTaskPresenter;
-=======
->>>>>>> f37130ea1181aae5e07c48e17a7857312fcb9207
     return popupTaskPresenter;
   }
 

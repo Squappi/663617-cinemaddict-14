@@ -1,7 +1,12 @@
 import Abstract from './utils-abstract.js';
 
 const createContentList = (task) => {
-  const {poster, nameFilm, rating, year, duration, genre, description, comment} = task;
+  const {
+    poster, nameFilm, rating, year, duration, genre, description, comment,
+    allMovies: {
+      watchList: watchList,
+    },
+  } = task;
   let descriptionStr = description;
 
   if (descriptionStr.length > 140) {
@@ -20,7 +25,7 @@ const createContentList = (task) => {
     <p class="film-card__description">${descriptionStr}</p>
     <a class="film-card__comments">${comment.length} comments</a>
     <div class="film-card__controls">
-      <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
+      <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist${watchList ? ' film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
       <button class="film-card__controls-item button film-card__controls-item--mark-as-watched film-card__controls-item--active" type="button">Mark as watched</button>
       <button class="film-card__controls-item button film-card__controls-item--favorite" type="button">Mark as favorite</button>
     </div>
@@ -46,6 +51,6 @@ export default class SiteCreateView extends Abstract {
 
   setEditHandlerForm(callback) {
     this._callback.editClick = callback;
-    this.getElement().addEventListener('click', this._editHandlerForm);
+    this.getElement().querySelectorAll('.film-card__poster,.film-card__title,.film-card__comments').forEach((element) => element.addEventListener('click', this._editHandlerForm));
   }
 }
