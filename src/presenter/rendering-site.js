@@ -8,7 +8,7 @@ import EmptyMessage from '../view/empty.js';
 
 import popupPresenter from './popup-task.js';
 import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
-import { SortType } from '../mock/const.js';
+import {SortType} from '../mock/const.js';
 
 const FILMS_COUNT = 5;
 const EXTRA = 2;
@@ -37,17 +37,16 @@ export default class GenerateSite {
   }
 
   init(films) {
+    this._sourcedFilms = films.slice();
+
     this._renderSite = films.slice();
+
     this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
     this._renderFilterView = new SiteMenuFilter(this._renderSite);
 
     this._renderFitter();
     this._renderSort();
     this._renderUser();
-
-    // slice sort
-
-    this._sourcedFilms = films.slice();
 
     // render ContainerCards
 
@@ -57,9 +56,7 @@ export default class GenerateSite {
 
     // render Cards
 
-    for (let i = 0; i < Math.min(this._renderSite.length, FILMS_COUNT); i++) {
-      this._mapMain.set(this._renderSite[i].id, this._renderComponent(this._renderFilmsList, this._renderSite[i], renderPosition.BEFOREEND));
-    }
+    this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
 
     [this._topRateOne, this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
 
@@ -90,8 +87,19 @@ export default class GenerateSite {
     //обход всех остальных popup presenters и вызов resetView
   }
 
+  _updateItemInList(list, item) {
+    const resultList = list.slice();
+    const index = resultList.findIndex((i) => i.id = item.id);
+    if (index >= 0) {
+      resultList[index] = item;
+    }
+    return resultList;
+  }
+
   _changeData(task) {
-    //+update task in this._renderSite
+    this._renderSite = this._updateItemInList(this._renderSite, task);
+    this._sourcedFilms = this._updateItemInList(this._sourcedFilms, task);
+
     if (this._mapMain.has(task.id)) {
       this._mapMain.get(task.id).init(task);
     }
@@ -110,17 +118,22 @@ export default class GenerateSite {
   }
 
   _sortByData(sortType) {
-    switch(sortType) {
+    this._renderSite = this._sourcedFilms.slice();
+    switch (sortType) {
       case SortType.DATE:
-        this._sourcedFilms.sort(sortFilmsDate);
+        this._renderSite.sort(sortFilmsDate);
         break;
       case SortType.RATING:
-        this._sourcedFilms.sort(sortFilmsRating);
+        this._renderSite.sort(sortFilmsRating);
         break;
       case SortType.DEFAULT:
-        this._sourcedFilms = this._renderSite.slice();
+        break;
     }
-    console.log(this._sourcedFilms.sort(sortFilmsRating));
+    this._renderFilmsCount = FILMS_COUNT;
+
+    this._renderFilmsList.innerHTML = '';
+    this._mapMain.clear();
+    this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
   }
 
   _renderSort() {

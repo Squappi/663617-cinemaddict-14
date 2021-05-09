@@ -14,7 +14,7 @@ const getRandonFloat = (a = 0, b = 1) => {
   const LOWER = Math.ceil(Math.min(a, b));
   const UPPER = Math.ceil(Math.max(a, b));
 
-  return Math.fround(LOWER + Math.random() * (UPPER - LOWER + 1)).toFixed(1);
+  return Number(Math.fround(LOWER + Math.random() * (UPPER - LOWER + 1)).toFixed(1));
 };
 
 export const noRepite = (array) => {
