@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import Abstract from './view/utils-abstract';
 
 export const renderPosition = {
@@ -30,3 +31,41 @@ export const remove = (component) => {
   component.getElement().remove();
   component.removeElement();
 };
+
+const getWeightNullDate = (dateA, dateB) => {
+  if (dateA === null && dateB === null) {
+    return 0;
+  }
+
+  if (dateA === null) {
+    return 1;
+  }
+
+  if (dateB === null) {
+    return -1;
+  }
+
+  return null;
+};
+
+export const sortFilmsDate = (filmA, filmB) => {
+  const weight = getWeightNullDate(filmA.year, filmB.year);
+  if (weight !== null) {
+    return weight;
+  }
+
+  return dayjs(filmB.year).diff(dayjs(filmA.year));
+};
+
+export const sortFilmsRating = (fimlA, filmB) => {
+  if (fimlA.rating === filmB.rating) {
+    return 0;
+  }
+
+  if (fimlA.rating > filmB.rating) {
+    return 1;
+  }
+
+  return -1;
+};
+

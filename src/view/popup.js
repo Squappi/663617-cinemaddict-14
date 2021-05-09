@@ -14,6 +14,8 @@ const createPopup = (film) => {
     description,
     allMovies: {
       watchList: watchList,
+      history: history,
+      favorites: favorites,
     },
   } = film;
 
@@ -86,10 +88,10 @@ const createPopup = (film) => {
         <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist"${watchList ? ' checked' : ''}>
         <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched"${history ? ' checked' : ''}>
         <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite"${favorites ? ' checked' : ''}>
         <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
       </section>
     </div>
@@ -144,6 +146,8 @@ export default class SiteCreatePopup extends Abstract {
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
+    this._addToHistoryHandler = this._addToHistoryHandler.bind(this);
+    this._addToFavoritesHandler = this._addToFavoritesHandler.bind(this);
   }
 
   getTemplate() {
@@ -160,6 +164,8 @@ export default class SiteCreatePopup extends Abstract {
     this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._closeClickHandler);
   }
 
+  //WatchList
+
   _addToWatchListHandler() {
     this._callback.addToWatchList();
   }
@@ -167,5 +173,27 @@ export default class SiteCreatePopup extends Abstract {
   setAddToWatchListHandler(callback) {
     this._callback.addToWatchList = callback;
     this.getElement().querySelector('#watchlist').addEventListener('click', this._addToWatchListHandler);
+  }
+
+  //History
+
+  _addToHistoryHandler() {
+    this._callback.addToHistory();
+  }
+
+  setAddToHistoryHandler(callback) {
+    this._callback.addToHistory = callback;
+    this.getElement().querySelector('#watched').addEventListener('click', this._addToHistoryHandler);
+  }
+
+  // Favorites
+
+  _addToFavoritesHandler() {
+    this._callback.addToFavorite();
+  }
+
+  setAddFavoritesHandler(callback) {
+    this._callback.addToFavorite = callback;
+    this.getElement().querySelector('#favorite').addEventListener('click', this._addToFavoritesHandler);
   }
 }

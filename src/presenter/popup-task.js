@@ -20,7 +20,10 @@ export default class popupPresenter {
     this._handleOpenPopup = this._handleOpenPopup.bind(this);
     this._handleClosePopup = this._handleClosePopup.bind(this);
     this._handleClosePopupEsc = this._handleClosePopupEsc.bind(this);
+
     this._addToWatch = this._addToWatch.bind(this);
+    this._addToHistory = this._addToHistory.bind(this);
+    this._addToFavorite = this._addToFavorite.bind(this);
   }
 
   _addToWatch() {
@@ -41,6 +44,40 @@ export default class popupPresenter {
     this._changeData(task);
   }
 
+  _addToHistory() {
+    const task = Object.assign(
+      {},
+      this._task,
+      {
+        allMovies: Object.assign(
+          {},
+          this._task.allMovies,
+          {
+            history: !this._task.allMovies.history,
+          },
+        ),
+      },
+    );
+    this._changeData(task);
+  }
+
+  _addToFavorite() {
+    const task = Object.assign(
+      {},
+      this._task,
+      {
+        allMovies: Object.assign(
+          {},
+          this._task.allMovies,
+          {
+            favorites: !this._task.allMovies.favorites,
+          },
+        ),
+      },
+    );
+    this._changeData(task);
+  }
+
   init(task) {
     this._task = task;
 
@@ -56,10 +93,15 @@ export default class popupPresenter {
 
     this._taskRender = new SiteCreateView(task);
     this._taskRender.setEditHandlerForm(this._handleOpenPopup);
+    this._taskRender.setToWatchList(this._addToWatch);
+    this._taskRender.setToHistoryList(this._addToHistory);
+    this._taskRender.setToFavoriteList(this._addToFavorite);
 
     this._popupTask = new SiteCreatePopup(task);
 
     this._popupTask.setAddToWatchListHandler(this._addToWatch);
+    this._popupTask.setAddToHistoryHandler(this._addToHistory);
+    this._popupTask.setAddFavoritesHandler(this._addToFavorite);
     this._popupTask.setCloseHandler(this._handleClosePopup);
 
     if (previousTaskRender) {

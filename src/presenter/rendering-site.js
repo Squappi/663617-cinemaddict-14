@@ -7,8 +7,8 @@ import SiteMenuFilter from '../mock/filter.js';
 import EmptyMessage from '../view/empty.js';
 
 import popupPresenter from './popup-task.js';
-import {remove, renderElement, renderPosition} from '../utils.js';
-
+import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
+import { SortType } from '../mock/const.js';
 
 const FILMS_COUNT = 5;
 const EXTRA = 2;
@@ -32,6 +32,8 @@ export default class GenerateSite {
     this._mapMain = new Map();
     this._mapTopRate = new Map();
     this._mapTopComment = new Map();
+
+    this._sortByData = this._sortByData.bind(this);
   }
 
   init(films) {
@@ -42,6 +44,10 @@ export default class GenerateSite {
     this._renderFitter();
     this._renderSort();
     this._renderUser();
+
+    // slice sort
+
+    this._sourcedFilms = films.slice();
 
     // render ContainerCards
 
@@ -64,7 +70,7 @@ export default class GenerateSite {
 
 
       for (let i = 0; i < EXTRA; i++) {
-        this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND))
+        this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND));
       }
     }
 
@@ -103,8 +109,23 @@ export default class GenerateSite {
     renderElement(this._renderingMarkup, this._renderFilterView.getElement(), renderPosition.BEFOREEND);
   }
 
+  _sortByData(sortType) {
+    switch(sortType) {
+      case SortType.DATE:
+        this._sourcedFilms.sort(sortFilmsDate);
+        break;
+      case SortType.RATING:
+        this._sourcedFilms.sort(sortFilmsRating);
+        break;
+      case SortType.DEFAULT:
+        this._sourcedFilms = this._renderSite.slice();
+    }
+    console.log(this._sourcedFilms.sort(sortFilmsRating));
+  }
+
   _renderSort() {
     renderElement(this._renderingMarkup, this._renderingSortMenu.getElement(), renderPosition.BEFOREEND);
+    this._renderingSortMenu.sortTypeChangeHandler(this._sortByData);
   }
 
   _renderUser() {

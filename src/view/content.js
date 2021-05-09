@@ -5,6 +5,8 @@ const createContentList = (task) => {
     poster, nameFilm, rating, year, duration, genre, description, comment,
     allMovies: {
       watchList: watchList,
+      history: history,
+      favorites: favorites,
     },
   } = task;
   let descriptionStr = description;
@@ -26,8 +28,8 @@ const createContentList = (task) => {
     <a class="film-card__comments">${comment.length} comments</a>
     <div class="film-card__controls">
       <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist${watchList ? ' film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
-      <button class="film-card__controls-item button film-card__controls-item--mark-as-watched film-card__controls-item--active" type="button">Mark as watched</button>
-      <button class="film-card__controls-item button film-card__controls-item--favorite" type="button">Mark as favorite</button>
+      <button class="film-card__controls-item button film-card__controls-item--mark-as-watched${history ? ' film-card__controls-item--active' : ''}" type="button">Mark as watched</button>
+      <button class="film-card__controls-item button film-card__controls-item--favorite${favorites ? ' film-card__controls-item--active' : ''} " type="button">Mark as favorite</button>
     </div>
   </article>`;
 };
@@ -38,6 +40,9 @@ export default class SiteCreateView extends Abstract {
     this._content = task;
 
     this._editHandlerForm = this._editHandlerForm.bind(this);
+    this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
+    this._addToHistoryHandler = this._addToHistoryHandler.bind(this);
+    this._addToFavoriteHandler = this._addToFavoriteHandler.bind(this);
   }
 
   getTemplate() {
@@ -51,6 +56,37 @@ export default class SiteCreateView extends Abstract {
 
   setEditHandlerForm(callback) {
     this._callback.editClick = callback;
-    this.getElement().querySelectorAll('.film-card__poster,.film-card__title,.film-card__comments').forEach((element) => element.addEventListener('click', this._editHandlerForm));
+    this.getElement().querySelectorAll('.film-card__poster,.film-card__title,.film-card__comments')
+      .forEach((element) => element.addEventListener('click', this._editHandlerForm));
+  }
+
+  _addToWatchListHandler() {
+    this._callback.addToWatchList();
+  }
+
+  setToWatchList(callback) {
+    this._callback.addToWatchList = callback;
+    this.getElement().querySelector('.film-card__controls-item--add-to-watchlist')
+      .addEventListener('click', this._addToWatchListHandler);
+  }
+
+  _addToHistoryHandler() {
+    this._callback.addToHistoryList();
+  }
+
+  setToHistoryList(callback) {
+    this._callback.addToHistoryList = callback;
+    this.getElement().querySelector('.film-card__controls-item--mark-as-watched')
+      .addEventListener('click', this._addToHistoryHandler);
+  }
+
+  _addToFavoriteHandler() {
+    this._callback.addToFavoriteList();
+  }
+
+  setToFavoriteList(callback) {
+    this._callback.addToFavoriteList = callback;
+    this.getElement().querySelector('.film-card__controls-item--favorite')
+      .addEventListener('click', this._addToFavoriteHandler);
   }
 }

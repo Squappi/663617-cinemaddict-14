@@ -91,5 +91,11 @@ const DESCRIPTIONS = [
   'Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante',
 ];
 
+export const SortType = {
+  DEFAULT: 'default',
+  DATE: 'date',
+  RATING: 'rating',
+};
+
 export { AUTHORS, YEARS, GENRES, EMOJIES, NAME_FILMS, MESSAGES, AGE_RESTRICTIONS,
   DIRECTORS, WRITTERS, RELEASE_DATES, COUNTRYS, ACTORS_FILMS, DESCRIPTIONS };
