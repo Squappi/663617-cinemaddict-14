@@ -25,12 +25,17 @@ export default class SiteMenuSort extends Abstract{
       return;
     }
 
+    if(evt.target.classList.contains('sort__button--active')) {
+      return;
+    }
+
     evt.preventDefault();
     this._callback.SortTypeChange(evt.target.dataset.sortType);
 
     this.getElement().querySelectorAll('.sort__button').forEach((button) => {
       button.classList.remove('sort__button--active');
     });
+    evt.target.classList.add('sort__button--active');
   }
 
   sortTypeChangeHandler(callback) {

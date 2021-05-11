@@ -8,7 +8,7 @@ import EmptyMessage from '../view/empty.js';
 
 import popupPresenter from './popup-task.js';
 import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
-import {SortType} from '../mock/const.js';
+import { SortType } from '../mock/const.js';
 
 const FILMS_COUNT = 5;
 const EXTRA = 2;
@@ -20,6 +20,7 @@ export default class GenerateSite {
     this._renderFilmsCount = FILMS_COUNT;
 
     this._renderingSortMenu = new SiteMenuSort();
+    this._currentSortType = SortType.DEFAULT;
 
     this._renderButton = new SiteButton();
     this._renderUserView = new SiteMenuUser();
@@ -37,10 +38,8 @@ export default class GenerateSite {
   }
 
   init(films) {
-    this._sourcedFilms = films.slice();
-
     this._renderSite = films.slice();
-
+    this._sourcedFilms = films.slice();
     this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
     this._renderFilterView = new SiteMenuFilter(this._renderSite);
 
@@ -97,6 +96,7 @@ export default class GenerateSite {
   }
 
   _changeData(task) {
+    //+update task in this._renderSite
     this._renderSite = this._updateItemInList(this._renderSite, task);
     this._sourcedFilms = this._updateItemInList(this._sourcedFilms, task);
 
@@ -119,7 +119,7 @@ export default class GenerateSite {
 
   _sortByData(sortType) {
     this._renderSite = this._sourcedFilms.slice();
-    switch (sortType) {
+    switch(sortType) {
       case SortType.DATE:
         this._renderSite.sort(sortFilmsDate);
         break;
@@ -135,6 +135,13 @@ export default class GenerateSite {
     this._mapMain.clear();
     this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
   }
+
+  // _handleSortButtonClick(sortType) {
+  //   if(this._currentSortType === sortType) {
+  //     return;
+  //   }
+  //   this._sortByData(sortType);
+  // }
 
   _renderSort() {
     renderElement(this._renderingMarkup, this._renderingSortMenu.getElement(), renderPosition.BEFOREEND);
