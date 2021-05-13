@@ -1,4 +1,6 @@
-import Abstract from './utils-abstract.js';
+// import dayjs from 'dayjs';
+import Smart from '../presenter/smart.js';
+
 
 const createPopup = (film) => {
   const {
@@ -139,7 +141,7 @@ const createPopup = (film) => {
 </section>`;
 };
 
-export default class SiteCreatePopup extends Abstract {
+export default class SiteCreatePopup extends Smart {
   constructor(film) {
     super();
     this._film = film;
@@ -148,6 +150,10 @@ export default class SiteCreatePopup extends Abstract {
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
     this._addToHistoryHandler = this._addToHistoryHandler.bind(this);
     this._addToFavoritesHandler = this._addToFavoritesHandler.bind(this);
+
+    this._addEmojiListener = this._addEmojiListener.bind(this);
+
+    this._addEmojiListener();
   }
 
   getTemplate() {
@@ -195,5 +201,21 @@ export default class SiteCreatePopup extends Abstract {
   setAddFavoritesHandler(callback) {
     this._callback.addToFavorite = callback;
     this.getElement().querySelector('#favorite').addEventListener('click', this._addToFavoritesHandler);
+  }
+
+  // emoji
+
+  _addEmojiListener() {
+    const emojiImage = this.getElement().querySelector('.film-details__add-emoji-label').childNodes[1];
+    this.getElement().querySelectorAll('.film-details__emoji-label').forEach((element) => {
+      element.addEventListener('click', (evt) => {
+        const img = evt.target;
+        if(img.src) {
+          emojiImage.src = img.src;
+        } else {
+          emojiImage.src = img.childNodes[1].src;
+        }
+      });
+    });
   }
 }
