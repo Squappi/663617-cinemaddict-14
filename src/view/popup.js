@@ -1,8 +1,9 @@
 // import dayjs from 'dayjs';
 import Smart from '../presenter/smart.js';
 
+const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
 
-const createPopup = (film) => {
+const createPopup = (film, state = {}) => {
   const {
     ageRestriction,
     director,
@@ -105,34 +106,19 @@ const createPopup = (film) => {
         <ul class="film-details__comments-list"></ul>
 
         <div class="film-details__new-comment">
-          <div class="film-details__add-emoji-label">
-            <img src="images/emoji/smile.png" width="55" height="55" alt="emoji-smile">
-          </div>
+          <div class="film-details__add-emoji-label">${state.emoji ? `<img src="images/emoji/${state.emoji}.png" width="55" height="55" alt="emoji-smile">` : ''}</div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">Great movie!</textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${state.text || ''}</textarea>
           </label>
 
           <div class="film-details__emoji-list">
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" checked>
-            <label class="film-details__emoji-label" for="emoji-smile">
-              <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
+            ${EMOJIES.map((emoji) => `
+            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji}" value="${emoji}"${emoji === state.emoji ? ' checked' : ''}>
+            <label class="film-details__emoji-label" for="emoji-${emoji}">
+              <img src="./images/emoji/${emoji}.png" width="30" height="30" alt="emoji">
             </label>
-
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
-            <label class="film-details__emoji-label" for="emoji-sleeping">
-              <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
-            </label>
-
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
-            <label class="film-details__emoji-label" for="emoji-puke">
-              <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
-            </label>
-
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
-            <label class="film-details__emoji-label" for="emoji-angry">
-              <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
-            </label>
+            `).join('')}
           </div>
         </div>
       </section>
@@ -145,19 +131,18 @@ export default class SiteCreatePopup extends Smart {
   constructor(film) {
     super();
     this._film = film;
+    this._state = {};
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
     this._addToHistoryHandler = this._addToHistoryHandler.bind(this);
     this._addToFavoritesHandler = this._addToFavoritesHandler.bind(this);
 
-    this._addEmojiListener = this._addEmojiListener.bind(this);
-
-    this._addEmojiListener();
+    this.restoreHandlers();
   }
 
   getTemplate() {
-    return createPopup(this._film);
+    return createPopup(this._film, this._state);
   }
 
   _closeClickHandler(evt) {
@@ -205,16 +190,22 @@ export default class SiteCreatePopup extends Smart {
 
   // emoji
 
+  restoreHandlers() {
+    this._addEmojiListener();
+    this._addTextAreaListener();
+  }
+
+  _addTextAreaListener() {
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('change', (evt) => {
+      this._state.text = evt.target.value;
+    });
+  }
+
   _addEmojiListener() {
-    const emojiImage = this.getElement().querySelector('.film-details__add-emoji-label').childNodes[1];
-    this.getElement().querySelectorAll('.film-details__emoji-label').forEach((element) => {
-      element.addEventListener('click', (evt) => {
-        const img = evt.target;
-        if(img.src) {
-          emojiImage.src = img.src;
-        } else {
-          emojiImage.src = img.childNodes[1].src;
-        }
+    this.getElement().querySelectorAll('input.film-details__emoji-item').forEach((element) => {
+      element.addEventListener('change', (evt) => {
+        this._state.emoji = evt.target.value;
+        this.updateElement();
       });
     });
   }
