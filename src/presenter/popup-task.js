@@ -144,12 +144,14 @@ export default class popupPresenter {
   _handleClosePopup() {
     this._popupTask.getElement().remove();
     document.removeEventListener('keydown', this._handleClosePopupEsc);
+    document.body.classList.remove('hide-overflow');
   }
 
   _handleOpenPopup() {
     this._changeMode();
     document.body.appendChild(this._popupTask.getElement());
     document.addEventListener('keydown', this._handleClosePopupEsc);
+    document.body.classList.add('hide-overflow');
     this._mode = Mode.EDITING;
   }
 }

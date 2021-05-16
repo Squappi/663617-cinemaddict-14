@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { rewriteDuration } from '../mock/const.js';
+import { formatDuration } from '../mock/const.js';
 import Smart from '../presenter/smart.js';
 import CommentsView from './comments.js';
 
@@ -26,7 +26,7 @@ const createPopup = (film, state = {}) => {
 
   const commentsList = film.comment.map((comment) => {
     return new CommentsView(comment).getTemplate();
-  });
+  }).join(' ');
 
   const getGenre = (genre) => `<span className="film-details__genre">${genre}</span>`;
 
@@ -74,7 +74,7 @@ const createPopup = (film, state = {}) => {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">${rewriteDuration(duration)}</td>
+              <td class="film-details__cell">${formatDuration(duration)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
@@ -199,6 +199,10 @@ export default class SiteCreatePopup extends Smart {
   restoreHandlers() {
     this._addEmojiListener();
     this._addTextAreaListener();
+
+    if(this._callback.closeClick) {
+      this.setCloseHandler(this._callback.closeClick);
+    }
   }
 
   _addTextAreaListener() {

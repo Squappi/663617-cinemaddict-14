@@ -1,4 +1,6 @@
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
 
 const AUTHORS = [
   'Виталий',
@@ -99,7 +101,7 @@ export const SortType = {
   RATING: 'rating',
 };
 
-const rewriteDuration = (minutes) => dayjs().startOf('day').set('minute', minutes).format('H[h] mm[m]');
+const formatDuration = (minutes) => dayjs.duration(minutes,'minutes').format('H[h] mm[m]');
 
 export { AUTHORS, YEARS, GENRES, EMOJIES, NAME_FILMS, MESSAGES, AGE_RESTRICTIONS,
-  DIRECTORS, WRITTERS, RELEASE_DATES, COUNTRYS, ACTORS_FILMS, DESCRIPTIONS, rewriteDuration };
+  DIRECTORS, WRITTERS, RELEASE_DATES, COUNTRYS, ACTORS_FILMS, DESCRIPTIONS, formatDuration };
