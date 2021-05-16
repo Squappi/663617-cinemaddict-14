@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 const AUTHORS = [
   'Виталий',
   'Арсений',
@@ -24,10 +26,10 @@ const GENRES = [
 ];
 
 const EMOJIES = [
-  './images/emoji/angry.png',
-  './images/emoji/puke.png',
-  './images/emoji/sleeping.png',
-  './images/emoji/smile.png',
+  'angry.png',
+  'puke.png',
+  'sleeping.png',
+  'smile.png',
 ];
 
 const NAME_FILMS = [
@@ -97,5 +99,7 @@ export const SortType = {
   RATING: 'rating',
 };
 
+const rewriteDuration = (minutes) => dayjs().startOf('day').set('minute', minutes).format('H[h] mm[m]');
+
 export { AUTHORS, YEARS, GENRES, EMOJIES, NAME_FILMS, MESSAGES, AGE_RESTRICTIONS,
-  DIRECTORS, WRITTERS, RELEASE_DATES, COUNTRYS, ACTORS_FILMS, DESCRIPTIONS };
+  DIRECTORS, WRITTERS, RELEASE_DATES, COUNTRYS, ACTORS_FILMS, DESCRIPTIONS, rewriteDuration };

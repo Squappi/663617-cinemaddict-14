@@ -1,5 +1,7 @@
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
+import { rewriteDuration } from '../mock/const.js';
 import Smart from '../presenter/smart.js';
+import CommentsView from './comments.js';
 
 const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
 
@@ -21,6 +23,10 @@ const createPopup = (film, state = {}) => {
       favorites: favorites,
     },
   } = film;
+
+  const commentsList = film.comment.map((comment) => {
+    return new CommentsView(comment).getTemplate();
+  });
 
   const getGenre = (genre) => `<span className="film-details__genre">${genre}</span>`;
 
@@ -64,11 +70,11 @@ const createPopup = (film, state = {}) => {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">${releaseDate}</td>
+              <td class="film-details__cell">${dayjs(releaseDate).format('DD MMMM YYYY')}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">${duration}</td>
+              <td class="film-details__cell">${rewriteDuration(duration)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
@@ -103,7 +109,7 @@ const createPopup = (film, state = {}) => {
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">0</span></h3>
 
-        <ul class="film-details__comments-list"></ul>
+        <ul class="film-details__comments-list">${commentsList}</ul>
 
         <div class="film-details__new-comment">
           <div class="film-details__add-emoji-label">${state.emoji ? `<img src="images/emoji/${state.emoji}.png" width="55" height="55" alt="emoji-smile">` : ''}</div>
