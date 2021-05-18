@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
 import { formatDuration } from '../mock/const.js';
 import Smart from '../presenter/smart.js';
-import CommentsView from './comments.js';
+import CommentView from './comments.js';
+import he from 'he';
 
 const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
 
-const createPopup = (film, state = {}) => {
+const createPopup = (film, state = {}, deleteComment) => {
   const {
     ageRestriction,
     director,
@@ -25,7 +26,10 @@ const createPopup = (film, state = {}) => {
   } = film;
 
   const commentsList = film.comment.map((comment) => {
-    return new CommentsView(comment).getTemplate();
+    const newComment = new CommentView(comment);
+    newComment.setDeleteHandler(deleteComment);
+    console.log(deleteComment);
+    return newComment.getTemplate();
   }).join(' ');
 
   const getGenre = (genre) => `<span className="film-details__genre">${genre}</span>`;
@@ -115,7 +119,7 @@ const createPopup = (film, state = {}) => {
           <div class="film-details__add-emoji-label">${state.emoji ? `<img src="images/emoji/${state.emoji}.png" width="55" height="55" alt="emoji-smile">` : ''}</div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${state.text || ''}</textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${he.encode(state.text || '')}</textarea>
           </label>
 
           <div class="film-details__emoji-list">
@@ -143,12 +147,15 @@ export default class SiteCreatePopup extends Smart {
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
     this._addToHistoryHandler = this._addToHistoryHandler.bind(this);
     this._addToFavoritesHandler = this._addToFavoritesHandler.bind(this);
+    this.setDeleteCommentHandler = this.setDeleteCommentHandler.bind(this);
+    this.getTemplate = this.getTemplate.bind(this);
 
     this.restoreHandlers();
   }
 
   getTemplate() {
-    return createPopup(this._film, this._state);
+    console.log(this._callback._deleteComment);
+    return createPopup(this._film, this._state, this._callback.deleteComment);
   }
 
   _closeClickHandler(evt) {
@@ -218,5 +225,9 @@ export default class SiteCreatePopup extends Smart {
         this.updateElement();
       });
     });
+  }
+
+  setDeleteCommentHandler(callback) {
+    this._callback.deleteComment = callback;
   }
 }

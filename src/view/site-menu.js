@@ -1,7 +1,7 @@
 const createSiteMenu = (filter) => {
   const { name, count } = filter;
 
-  return `<a href="#${name}" class="main-navigation__item">${name} <span class="main-navigation__item-count">${count}</span></a>`;
+  return `<a href="#${name}" data-filter-type = "${name}" class="main-navigation__item">${name} <span class="main-navigation__item-count">${count}</span></a>`;
 };
 
 export const createFilterTemplete = (filterItems) => {
@@ -10,9 +10,11 @@ export const createFilterTemplete = (filterItems) => {
 
   return  `<nav class="main-navigation">
   <div class="main-navigation__items">
-    <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
+    <a href="#all" data-filter-type = "AllMovies" class="main-navigation__item main-navigation__item--active">All movies</a>
     ${filtersItemTemplate}
   </div>
   <a href="#stats" class="main-navigation__additional">Stats</a>
 </nav>`;
 };
+
+

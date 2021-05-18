@@ -101,6 +101,10 @@ export const SortType = {
   RATING: 'rating',
 };
 
+export const ACTION_TYPE = {
+  DELETE: 'delete',
+};
+
 const formatDuration = (minutes) => dayjs.duration(minutes,'minutes').format('H[h] mm[m]');
 
 export { AUTHORS, YEARS, GENRES, EMOJIES, NAME_FILMS, MESSAGES, AGE_RESTRICTIONS,

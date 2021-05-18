@@ -19,12 +19,24 @@ const createComments = (comment) => {
   </li>`;
 };
 
-export default class CommentsView extends Abstract {
+export default class CommentView extends Abstract {
   constructor(comment) {
     super();
-    this._comments = comment;
+    this._comment = comment;
   }
   getTemplate() {
-    return createComments(this._comments);
+    return createComments(this._comment);
+  }
+
+  _setDeleteHandler(evt) {
+    evt.preventDefault();
+    console.log(evt);
+    // this._callback.deleteComment(this._comment);
+  }
+
+  setDeleteHandler(callback) {
+    this._callback.deleteComment = callback;
+    this.getElement().querySelector('.film-details__comment-delete')
+      .addEventListener('click', this._setDeleteHandler);
   }
 }

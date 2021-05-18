@@ -20,8 +20,34 @@ export default class SiteMenuFilter extends Abstract{
   constructor(filters) {
     super();
     this._filter = filters;
+
+    this._getFilterWatchlistHandler = this._getFilterWatchlistHandler.bind(this);
   }
   getTemplate() {
     return createFilterTemplete(getFilter(this._filter));
+  }
+
+  _getFilterWatchlistHandler(evt) {
+    if(evt.target.tagName !== 'A') {
+      return;
+    }
+
+    if(evt.target.classList.contains('main-navigation__item--active')) {
+      return;
+    }
+    evt.preventDefault();
+    this._callback.filterTypeChange(evt.target.dataset.filterType);
+
+    this.getElement().querySelectorAll('.main-navigation__item').forEach((button) => {
+      button.classList.remove('main-navigation__item--active');
+    });
+    evt.target.classList.add('main-navigation__item--active');
+  }
+
+  setFilterWatchlistHandler(callback) {
+    this._callback.filterTypeChange = callback;
+    this.getElement().querySelectorAll('.main-navigation__item').forEach((element) => {
+      element.addEventListener('click', this._getFilterWatchlistHandler);
+    });
   }
 }

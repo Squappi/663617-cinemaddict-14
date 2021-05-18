@@ -78,6 +78,19 @@ export default class popupPresenter {
     this._changeData(task);
   }
 
+  _deleteComment(deleteComment) {
+    const task = Object.assign(
+      {},
+      this._task,
+      {
+        comment: this._task.comment.filter((comment) => {
+          return comment !== deleteComment;
+        }),
+      },
+    );
+    this._changeData(task);
+  }
+
   init(task) {
     this._task = task;
 
@@ -102,6 +115,7 @@ export default class popupPresenter {
     this._popupTask.setAddToWatchListHandler(this._addToWatch);
     this._popupTask.setAddToHistoryHandler(this._addToHistory);
     this._popupTask.setAddFavoritesHandler(this._addToFavorite);
+    this._popupTask.setDeleteCommentHandler(this._deleteComment);
     this._popupTask.setCloseHandler(this._handleClosePopup);
 
     if (previousTaskRender) {

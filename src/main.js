@@ -2,6 +2,9 @@ import SiteCreateNumberFilms from './view/number-of-films.js';
 import { generateCard } from './mock/mock.js';
 import { renderPosition, renderElement } from './utils.js';
 import GenerateSite from './presenter/rendering-site.js';
+import Movies from './model/movies.js';
+import FilterPresenter from './presenter/filter-presenter.js';
+import FilterModel from './model/filter-model.js';
 
 const FILMS = 15;
 
@@ -12,9 +15,14 @@ const siteMainElement = document.querySelector('.main');
 const siteHeaderElement = document.querySelector('.header');
 const siteFooterElement = document.querySelector('.footer__statistics');
 
-const renderSiteElement = new GenerateSite(siteMainElement, siteHeaderElement);
+const taskModel = new Movies();
+taskModel.setTasks(arrayFilms);
+const filterModel = new FilterModel();
 
+const filterRender = new FilterPresenter(taskModel, siteMainElement, filterModel);
+const renderSiteElement = new GenerateSite(siteMainElement, siteHeaderElement, taskModel, filterModel);
 
-renderSiteElement.init(arrayFilms);
+filterRender.init();
+renderSiteElement.init();
 
 renderElement(siteFooterElement, new SiteCreateNumberFilms(arrayFilms.length).getElement(), renderPosition.BEFOREEND);

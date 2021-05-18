@@ -3,7 +3,6 @@ import SiteButton from '../view/button.js';
 import SiteMenuUser from '../view/user.js';
 import SiteCreateNumberFilms from '../view/number-of-films.js';
 import SiteCreateCards from '../view/cards-container.js';
-import SiteMenuFilter from '../mock/filter.js';
 import EmptyMessage from '../view/empty.js';
 
 import popupPresenter from './popup-task.js';
@@ -14,7 +13,9 @@ const FILMS_COUNT = 5;
 const EXTRA = 2;
 
 export default class GenerateSite {
-  constructor(renderContainer, renderHeader) {
+  constructor(renderContainer, renderHeader, tasksModel, filterModel) {
+    this._filterModel = filterModel;
+    this._tasksModel = tasksModel;
     this._renderingMarkup = renderContainer;
     this._renderingHeader = renderHeader;
     this._renderFilmsCount = FILMS_COUNT;
@@ -37,13 +38,11 @@ export default class GenerateSite {
     this._sortByData = this._sortByData.bind(this);
   }
 
-  init(films) {
-    this._renderSite = films.slice();
-    this._sourcedFilms = films.slice();
+  init() {
+    this._renderSite = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
+    this._sourcedFilms = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
     this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
-    this._renderFilterView = new SiteMenuFilter(this._renderSite);
 
-    this._renderFitter();
     this._renderSort();
     this._renderUser();
 
@@ -111,10 +110,6 @@ export default class GenerateSite {
     if (this._mapTopRate.has(task.id)) {
       this._mapTopRate.get(task.id).init(task);
     }
-  }
-
-  _renderFitter() {
-    renderElement(this._renderingMarkup, this._renderFilterView.getElement(), renderPosition.BEFOREEND);
   }
 
   _sortByData(sortType) {
