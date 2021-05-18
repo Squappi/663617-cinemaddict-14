@@ -7,7 +7,7 @@ import EmptyMessage from '../view/empty.js';
 
 import popupPresenter from './popup-task.js';
 import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
-import { SortType } from '../mock/const.js';
+import {SortType} from '../mock/const.js';
 
 const FILMS_COUNT = 5;
 const EXTRA = 2;
@@ -36,6 +36,23 @@ export default class GenerateSite {
     this._mapTopComment = new Map();
 
     this._sortByData = this._sortByData.bind(this);
+    this._handleChangeFilter = this._handleChangeFilter.bind(this);
+
+    this._filterModel.addObserver(this._handleChangeFilter);
+  }
+
+  _handleChangeFilter(_event, filter) {
+    this._renderSite = this._tasksModel.getTasks(filter).slice();
+    this._sourcedFilms = this._tasksModel.getTasks(filter).slice();
+
+    this._renderFilmsList.innerHTML = ``;
+
+    this._mapMain.clear();
+    this._renderFilmsCount = FILMS_COUNT;
+
+    this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
+
+    this._renderLoadMoreButton();
   }
 
   init() {
@@ -114,7 +131,7 @@ export default class GenerateSite {
 
   _sortByData(sortType) {
     this._renderSite = this._sourcedFilms.slice();
-    switch(sortType) {
+    switch (sortType) {
       case SortType.DATE:
         this._renderSite.sort(sortFilmsDate);
         break;

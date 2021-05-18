@@ -1,5 +1,8 @@
-export default class FilterModel {
+import Observer from '../observer';
+
+export default class FilterModel extends Observer {
   constructor() {
+    super();
     this._filter = 'AllMovies';
   }
 
@@ -9,5 +12,6 @@ export default class FilterModel {
 
   setFilter(filter) {
     this._filter = filter;
+    this._notify('change', filter);
   }
 }
