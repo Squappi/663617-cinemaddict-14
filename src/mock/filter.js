@@ -22,6 +22,7 @@ export default class SiteMenuFilter extends Abstract{
     this._filter = filters;
 
     this._getFilterWatchlistHandler = this._getFilterWatchlistHandler.bind(this);
+    this._setStatsHandler = this._setStatsHandler.bind(this);
   }
   getTemplate() {
     return createFilterTemplete(getFilter(this._filter));
@@ -41,6 +42,8 @@ export default class SiteMenuFilter extends Abstract{
     this.getElement().querySelectorAll('.main-navigation__item').forEach((button) => {
       button.classList.remove('main-navigation__item--active');
     });
+    this.getElement().querySelector('.main-navigation__additional')
+      .classList.remove('main-navigation__item--active');
     evt.target.classList.add('main-navigation__item--active');
   }
 
@@ -49,5 +52,20 @@ export default class SiteMenuFilter extends Abstract{
     this.getElement().querySelectorAll('.main-navigation__item').forEach((element) => {
       element.addEventListener('click', this._getFilterWatchlistHandler);
     });
+  }
+
+  _setStatsHandler(evt) {
+    evt.preventDefault();
+    this.getElement().querySelectorAll('.main-navigation__item').forEach((button) => {
+      button.classList.remove('main-navigation__item--active');
+    });
+    evt.target.classList.add('main-navigation__item--active');
+    this._callback.showStats();
+  }
+
+  setStatsHandler(callback) {
+    this._callback.showStats = callback;
+    this.getElement().querySelector('.main-navigation__additional')
+      .addEventListener('click', this._setStatsHandler);
   }
 }

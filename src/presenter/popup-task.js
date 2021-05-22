@@ -24,6 +24,7 @@ export default class popupPresenter {
     this._addToWatch = this._addToWatch.bind(this);
     this._addToHistory = this._addToHistory.bind(this);
     this._addToFavorite = this._addToFavorite.bind(this);
+    this._deleteComment = this._deleteComment.bind(this);
   }
 
   _addToWatch() {
@@ -115,7 +116,7 @@ export default class popupPresenter {
     this._popupTask.setAddToWatchListHandler(this._addToWatch);
     this._popupTask.setAddToHistoryHandler(this._addToHistory);
     this._popupTask.setAddFavoritesHandler(this._addToFavorite);
-    this._popupTask.setDeleteCommentHandler(this._deleteComment);
+    this._popupTask.setDeleteHandler(this._deleteComment);
     this._popupTask.setCloseHandler(this._handleClosePopup);
 
     if (previousTaskRender) {

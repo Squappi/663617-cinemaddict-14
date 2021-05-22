@@ -26,16 +26,19 @@ export const noRepite = (array) => {
   return newEntrieArray;
 };
 
+let counter = 1;
+let counterComment = 1;
 
 const getComment = () => {
   return {
+    id: counterComment++,
     emoji: EMOJIES[getRandomInteger(0, 3)],
     data: `${getRandomInteger(2000, 2020)}/${getRandomInteger(1, 12)}/${getRandomInteger(1, 31)} ${getRandomInteger(1, 24)}:${getRandomInteger(1, 59)}`,
     author: AUTHORS[getRandomInteger(0, 5)],
     message: MESSAGES[getRandomInteger(0, MESSAGES.length - 1)],
   };
 };
-let counter = 1;
+
 export const generateCard = () => {
   return {
     id: counter++,
@@ -57,6 +60,10 @@ export const generateCard = () => {
       watchList: Boolean(getRandomInteger(0, 1)),
       history: Boolean(getRandomInteger(0, 1)),
       favorites: Boolean(getRandomInteger(0, 1)),
+    },
+    watchHistory: {
+      isWatch:  Boolean(getRandomInteger(0, 1)),
+      watchDate: RELEASE_DATES[getRandomInteger(0, 2)],
     },
   };
 };

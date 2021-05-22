@@ -1,12 +1,11 @@
 import dayjs from 'dayjs';
 import { formatDuration } from '../mock/const.js';
 import Smart from '../presenter/smart.js';
-import CommentView from './comments.js';
 import he from 'he';
 
 const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
 
-const createPopup = (film, state = {}, deleteComment) => {
+const createPopup = (film, state = {}) => {
   const {
     ageRestriction,
     director,
@@ -18,6 +17,7 @@ const createPopup = (film, state = {}, deleteComment) => {
     genre,
     actors,
     description,
+    comment,
     allMovies: {
       watchList: watchList,
       history: history,
@@ -25,12 +25,6 @@ const createPopup = (film, state = {}, deleteComment) => {
     },
   } = film;
 
-  const commentsList = film.comment.map((comment) => {
-    const newComment = new CommentView(comment);
-    newComment.setDeleteHandler(deleteComment);
-    console.log(deleteComment);
-    return newComment.getTemplate();
-  }).join(' ');
 
   const getGenre = (genre) => `<span className="film-details__genre">${genre}</span>`;
 
@@ -113,7 +107,22 @@ const createPopup = (film, state = {}, deleteComment) => {
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">0</span></h3>
 
-        <ul class="film-details__comments-list">${commentsList}</ul>
+        <ul class="film-details__comments-list">
+        ${comment.map(({emoji, message, author, data, id}) => `
+          <li class="film-details__comment">
+          <span class="film-details__comment-emoji">
+            <img src="./images/emoji/${emoji}" width="55" height="55" alt="emoji-smile">
+          </span>
+          <div>
+            <p class="film-details__comment-text">${message}</p>
+            <p class="film-details__comment-info">
+              <span class="film-details__comment-author">${author}</span>
+              <span class="film-details__comment-day">${dayjs(data).format('YYYY/MM/DD HH:MM')}</span>
+              <button class="film-details__comment-delete" data-id = ${id} >Delete</button>
+            </p>
+          </div>
+        </li>`).join('')}
+      </ul>
 
         <div class="film-details__new-comment">
           <div class="film-details__add-emoji-label">${state.emoji ? `<img src="images/emoji/${state.emoji}.png" width="55" height="55" alt="emoji-smile">` : ''}</div>
@@ -147,15 +156,15 @@ export default class SiteCreatePopup extends Smart {
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
     this._addToHistoryHandler = this._addToHistoryHandler.bind(this);
     this._addToFavoritesHandler = this._addToFavoritesHandler.bind(this);
-    this.setDeleteCommentHandler = this.setDeleteCommentHandler.bind(this);
+    this._setDeleteHandler = this._setDeleteHandler.bind(this);
     this.getTemplate = this.getTemplate.bind(this);
+    this.setDeleteHandler = this.setDeleteHandler.bind(this);
 
     this.restoreHandlers();
   }
 
   getTemplate() {
-    console.log(this._callback._deleteComment);
-    return createPopup(this._film, this._state, this._callback.deleteComment);
+    return createPopup(this._film, this._state);
   }
 
   _closeClickHandler(evt) {
@@ -227,7 +236,19 @@ export default class SiteCreatePopup extends Smart {
     });
   }
 
-  setDeleteCommentHandler(callback) {
+  _setDeleteHandler(evt) {
+    evt.preventDefault();
+    const comment = this._film.comment.filter((com) =>{
+      return com.id == evt.target.dataset.id;
+    })[0];
+    this._callback.deleteComment(comment);
+  }
+
+  setDeleteHandler(callback) {
     this._callback.deleteComment = callback;
+    if(this.getElement().querySelector('.film-details__comment-delete')) {
+      this.getElement().querySelectorAll('.film-details__comment-delete').forEach((elem) =>
+        elem.addEventListener('click', this._setDeleteHandler));
+    }
   }
 }

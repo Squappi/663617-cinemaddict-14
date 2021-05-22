@@ -8,6 +8,7 @@ export default class FilterPresenter {
     this._renderingMarkup = renderContainer;
 
     this._addFilter = this._addFilter.bind(this);
+    this._showStats = this._showStats.bind(this);
   }
 
   init() {
@@ -15,6 +16,7 @@ export default class FilterPresenter {
     this._renderFitter();
 
     this._renderFilterView.setFilterWatchlistHandler(this._addFilter);
+    this._renderFilterView.setStatsHandler(this._showStats);
   }
 
   _renderFitter() {
@@ -23,5 +25,9 @@ export default class FilterPresenter {
 
   _addFilter(filter) {
     this._filterModel.setFilter(filter);
+  }
+
+  _showStats() {
+    this._filterModel.showStats();
   }
 }

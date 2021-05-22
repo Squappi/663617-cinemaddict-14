@@ -12,6 +12,11 @@ export default class FilterModel extends Observer {
 
   setFilter(filter) {
     this._filter = filter;
-    this._notify('change', filter);
+    this._notify('changeFilter', filter);
+    this._notify('showFilms', filter);
+  }
+
+  showStats() {
+    this._notify('showStats', null);
   }
 }

@@ -4,6 +4,7 @@ import SiteMenuUser from '../view/user.js';
 import SiteCreateNumberFilms from '../view/number-of-films.js';
 import SiteCreateCards from '../view/cards-container.js';
 import EmptyMessage from '../view/empty.js';
+import {createStatistic} from '../view/stats.js';
 
 import popupPresenter from './popup-task.js';
 import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
@@ -13,9 +14,10 @@ const FILMS_COUNT = 5;
 const EXTRA = 2;
 
 export default class GenerateSite {
-  constructor(renderContainer, renderHeader, tasksModel, filterModel) {
+  constructor(renderContainer, renderHeader, tasksModel, filterModel, stats) {
     this._filterModel = filterModel;
     this._tasksModel = tasksModel;
+    this._stats = stats;
     this._renderingMarkup = renderContainer;
     this._renderingHeader = renderHeader;
     this._renderFilmsCount = FILMS_COUNT;
@@ -39,13 +41,18 @@ export default class GenerateSite {
     this._handleChangeFilter = this._handleChangeFilter.bind(this);
 
     this._filterModel.addObserver(this._handleChangeFilter);
+    this._showHideStats = this._showHideStats.bind(this);
+    this._filterModel.addObserver(this._showHideStats);
   }
 
   _handleChangeFilter(_event, filter) {
+    if(_event !== 'changeFilter') {
+      return;
+    }
     this._renderSite = this._tasksModel.getTasks(filter).slice();
     this._sourcedFilms = this._tasksModel.getTasks(filter).slice();
 
-    this._renderFilmsList.innerHTML = ``;
+    this._renderFilmsList.innerHTML = '';
 
     this._mapMain.clear();
     this._renderFilmsCount = FILMS_COUNT;
@@ -86,6 +93,8 @@ export default class GenerateSite {
       }
     }
 
+    renderElement(this._renderingMarkup, this._stats.getElement(), renderPosition.BEFOREEND);
+
     this._renderLoadMoreButton();
 
     if (this._renderSite.length === 0) {
@@ -93,6 +102,20 @@ export default class GenerateSite {
     }
 
     this._renderNumderFilm();
+  }
+
+  _showHideStats(event) {
+    if(event !== 'showStats' && event !== 'showFilms') {
+      return;
+    }
+    if(event === 'showStats') {
+      this._showStats();
+      createStatistic(this._renderSite.filter((film) =>{
+        return film.watchHistory.isWatch;
+      }), 'all-time');
+    } else {
+      this._showFims();
+    }
   }
 
   _changeMode() {
@@ -202,5 +225,15 @@ export default class GenerateSite {
 
   _renderMessage() {
     renderElement(this._renderingMarkup, this._renderEmptyMessage.getElement(), renderPosition.BEFOREEND);
+  }
+
+  _showStats() {
+    this._stats.show();
+    this._renderContainerCards.hide();
+  }
+
+  _showFims() {
+    this._stats.hide();
+    this._renderContainerCards.show();
   }
 }
