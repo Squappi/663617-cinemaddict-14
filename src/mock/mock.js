@@ -2,6 +2,8 @@ import {
   AUTHORS, YEARS, GENRES, EMOJIES, NAME_FILMS, MESSAGES, AGE_RESTRICTIONS,
   DIRECTORS, WRITTERS, RELEASE_DATES, COUNTRYS, ACTORS_FILMS, DESCRIPTIONS
 } from './const.js';
+import dayjs from "dayjs";
+
 const getRandomInteger = (a = 0, b = 1) => {
   const LOWER = Math.ceil(Math.min(a, b));
   const UPPER = Math.ceil(Math.max(a, b));
@@ -62,8 +64,8 @@ export const generateCard = () => {
       favorites: Boolean(getRandomInteger(0, 1)),
     },
     watchHistory: {
-      isWatch:  Boolean(getRandomInteger(0, 1)),
-      watchDate: RELEASE_DATES[getRandomInteger(0, 2)],
+      isWatch: Boolean(getRandomInteger(0, 1)),
+      watchDate: dayjs(getRandomInteger(dayjs().add(-1, 'year').valueOf(), dayjs().valueOf())).toISOString(),
     },
   };
 };

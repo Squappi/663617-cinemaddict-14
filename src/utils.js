@@ -69,20 +69,16 @@ export const sortFilmsRating = (fimlA, filmB) => {
   return -1;
 };
 
-export const statsData = (watchData, currentData, period) => {
-  switch(period) {
+export const statsData = (watchDate, currentDate, period) => {
+  switch (period) {
     case 'today':
-      console.log(dayjs.duration(dayjs(currentData) - dayjs(watchData),'milliseconds').format('DD'));
-      return dayjs.duration(dayjs(currentData) - dayjs(watchData),'milliseconds').format('DD') <= 1;
+      return dayjs.duration(dayjs(currentDate) - dayjs(watchDate), 'milliseconds').asDays() <= 1;
     case 'week':
-      console.log(dayjs.duration(dayjs(currentData) - dayjs(watchData),'milliseconds').format('d'));
-      return dayjs.duration(dayjs(currentData) - dayjs(watchData),'milliseconds').format('d') <= 7;
+      return dayjs.duration(dayjs(currentDate) - dayjs(watchDate), 'milliseconds').asWeeks() <= 1;
     case 'month':
-      console.log(dayjs.duration(dayjs(currentData) - dayjs(watchData),'milliseconds').format('MM'));
-      return dayjs.duration(dayjs(currentData) - dayjs(watchData),'milliseconds').format('MM') <= 1;
+      return dayjs.duration(dayjs(currentDate) - dayjs(watchDate), 'milliseconds').asMonths() <= 1;
     case 'year':
-      console.log(dayjs.duration(dayjs(currentData) - dayjs(watchData),'milliseconds').format('YY'))
-      return dayjs.duration(dayjs(currentData) - dayjs(watchData),'milliseconds').format('YY') <= 1;
+      return dayjs.duration(dayjs(currentDate) - dayjs(watchDate), 'milliseconds').asYears() <= 1;
     default :
       return true;
   }

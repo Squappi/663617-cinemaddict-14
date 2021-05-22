@@ -11,7 +11,7 @@ export default class Movies extends Observer {
   }
 
   getTasks(filter) {
-    if(filter === 'AllMovies') {
+    if (filter === 'AllMovies') {
       return this._tasks;
     } else {
       return this._tasks.filter((film) => {
@@ -28,9 +28,13 @@ export default class Movies extends Observer {
   }
 
   updateFilm(film) {
-    const oldFilm = this._tasks.filter((task) => {
+    const oldFilmIndex = this._tasks.findIndex((task) => {
       return task.id === film.id;
-    })[0];
-    this._tasks[this._tasks.indexOf(oldFilm)] = film;
+    });
+    if (oldFilmIndex >= 0) {
+      const copyFilms = this._tasks.slice();
+      copyFilms[oldFilmIndex] = film;
+      this._tasks = copyFilms;
+    }
   }
 }
