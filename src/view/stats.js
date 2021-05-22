@@ -3,6 +3,35 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { GENRES } from '../mock/const';
 import { statsData } from '../utils';
+import dayjs from 'dayjs';
+
+const countStatistic = (genre, films) => {
+  const countsFilms = [];
+  let totalCount = 0;
+  let maxGenre = '';
+  let maxCount = 0;
+  let totalTime = 0;
+  for (let i = 0; i < genre.length; i++) {
+    const length = films.filter((film) => {
+      return film.genre.includes(genre[i]);
+    }).length;
+    countsFilms.push(length);
+    totalCount += length;
+    if(length > maxCount) {
+      maxCount = length;
+      maxGenre = genre[i];
+    }
+  }
+  films.forEach((film) => {
+    totalTime += parseInt(film.duration);
+  });
+  return {
+    countsFilms: countsFilms,
+    totalCount: totalCount,
+    maxGenre: maxGenre,
+    totalTime: totalTime,
+  };
+};
 
 export const createStatistic = (films, period) => {
   const currentFilms = films.filter((film) => {
@@ -11,19 +40,20 @@ export const createStatistic = (films, period) => {
   const BAR_HEIGHT = 50;
   const statisticCtx = document.querySelector('.statistic__chart').getContext('2d');
   // Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
-  statisticCtx.height = BAR_HEIGHT * GENRES.length;
 
+  statisticCtx.height = BAR_HEIGHT * GENRES.length;
+  const statistic = countStatistic(GENRES, currentFilms);
+  document.querySelectorAll('.statistic__item-text')[0].innerHTML = statistic.totalCount;
+  document.querySelectorAll('.statistic__item-text')[1].innerHTML = dayjs.duration(statistic.totalTime,'minutes')
+    .format('H[h] mm[m]');
+  document.querySelectorAll('.statistic__item-text')[2].innerHTML = statistic.maxGenre;
   const myChart = new Chart(statisticCtx, {
     plugins: [ChartDataLabels],
     type: 'horizontalBar',
     data: {
       labels: GENRES,
       datasets: [{
-        data: GENRES.map((genre) =>{
-          return currentFilms.filter((film) =>{
-            return film.genre.includes(genre);
-          }).length;
-        }),
+        data: statistic.countsFilms,
         backgroundColor: '#ffe800',
         hoverBackgroundColor: '#ffe800',
         anchor: 'start',
@@ -106,7 +136,7 @@ const createStats = () => {
   <ul class="statistic__text-list">
     <li class="statistic__text-item">
       <h4 class="statistic__item-title">You watched</h4>
-      <p class="statistic__item-text">22 <span class="statistic__item-description">movies</span></p>
+      <p class="statistic__item-text"><span class="statistic__item-description">movies</span></p>
     </li>
     <li class="statistic__text-item">
       <h4 class="statistic__item-title">Total duration</h4>

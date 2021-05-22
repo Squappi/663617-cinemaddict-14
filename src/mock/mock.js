@@ -2,7 +2,7 @@ import {
   AUTHORS, YEARS, GENRES, EMOJIES, NAME_FILMS, MESSAGES, AGE_RESTRICTIONS,
   DIRECTORS, WRITTERS, RELEASE_DATES, COUNTRYS, ACTORS_FILMS, DESCRIPTIONS
 } from './const.js';
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 const getRandomInteger = (a = 0, b = 1) => {
   const LOWER = Math.ceil(Math.min(a, b));
