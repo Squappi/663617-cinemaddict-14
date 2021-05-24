@@ -1,9 +1,7 @@
 import Abstract from './utils-abstract.js';
 
 const createNumberOfFilms = (task) => {
-  return `<section class="footer__statistics">
-      <p>${task} movies inside</p>
-  </section>`;
+  return `<p>${task} movies inside</p>`;
 };
 
 export default class SiteCreateNumberFilms extends Abstract {

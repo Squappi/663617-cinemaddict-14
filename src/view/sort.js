@@ -38,6 +38,13 @@ export default class SiteMenuSort extends Abstract{
     evt.target.classList.add('sort__button--active');
   }
 
+  clear() {
+    this.getElement().querySelectorAll('.sort__button').forEach((button) => {
+      button.classList.remove('sort__button--active');
+    });
+    this.getElement().querySelectorAll('.sort__button')[0].classList.add('sort__button--active');
+  }
+
   sortTypeChangeHandler(callback) {
     this._callback.SortTypeChange = callback;
     this.getElement().querySelectorAll('.sort__button').forEach((element) => {

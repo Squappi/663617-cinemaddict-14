@@ -62,7 +62,7 @@ export const sortFilmsRating = (fimlA, filmB) => {
     return 0;
   }
 
-  if (fimlA.rating > filmB.rating) {
+  if (fimlA.rating < filmB.rating) {
     return 1;
   }
 

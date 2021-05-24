@@ -5,7 +5,8 @@ import he from 'he';
 
 const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
 
-const createPopup = (film, state = {}) => {
+const createPopup = (film, state = {}, comment) => {
+  console.log(comment);
   const {
     ageRestriction,
     director,
@@ -17,7 +18,6 @@ const createPopup = (film, state = {}) => {
     genre,
     actors,
     description,
-    comment,
     allMovies: {
       watchList: watchList,
       history: history,
@@ -38,7 +38,7 @@ const createPopup = (film, state = {}) => {
         <div class="film-details__poster">
           <img class="film-details__poster-img" src="./images/posters/the-great-flamarion.jpg" alt="">
 
-          <p class="film-details__age">${ageRestriction}</p>
+          <p class="film-details__age">+${ageRestriction}</p>
         </div>
 
         <div class="film-details__info">
@@ -79,7 +79,7 @@ const createPopup = (film, state = {}) => {
               <td class="film-details__cell">${country}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">Genres</td>
+              <td class="film-details__term">${genre.length > 1 ? 'Genres' : 'Genre'}</td>
               <td class="film-details__cell">
               ${genre.slice(0, 3).map(getGenre).join(' ')}
             </tr>
@@ -111,7 +111,7 @@ const createPopup = (film, state = {}) => {
         ${comment.map(({emoji, message, author, data, id}) => `
           <li class="film-details__comment">
           <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${emoji}" width="55" height="55" alt="emoji-smile">
+            <img src="./images/emoji/${emoji ? emoji: 'smile.png'}" width="55" height="55" alt="emoji-smile">
           </span>
           <div>
             <p class="film-details__comment-text">${message}</p>
@@ -133,9 +133,9 @@ const createPopup = (film, state = {}) => {
 
           <div class="film-details__emoji-list">
             ${EMOJIES.map((emoji) => `
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji}" value="${emoji}"${emoji === state.emoji ? ' checked' : ''}>
-            <label class="film-details__emoji-label" for="emoji-${emoji}">
-              <img src="./images/emoji/${emoji}.png" width="30" height="30" alt="emoji">
+            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji ? emoji: 'smile'}" value="${emoji ? emoji: 'smile'}"${emoji === state.emoji ? ' checked' : ''}>
+            <label class="film-details__emoji-label" for="emoji-${emoji ? emoji: 'smile'}">
+              <img src="./images/emoji/${emoji ? emoji: 'smile'}.png" width="30" height="30" alt="emoji">
             </label>
             `).join('')}
           </div>
@@ -147,10 +147,12 @@ const createPopup = (film, state = {}) => {
 };
 
 export default class SiteCreatePopup extends Smart {
-  constructor(film) {
+  constructor(film, api) {
     super();
     this._film = film;
     this._state = {};
+    this._api = api;
+    this._isLoading = false;
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
@@ -159,12 +161,19 @@ export default class SiteCreatePopup extends Smart {
     this._setDeleteHandler = this._setDeleteHandler.bind(this);
     this.getTemplate = this.getTemplate.bind(this);
     this.setDeleteHandler = this.setDeleteHandler.bind(this);
+    this._setAddHandler = this._setAddHandler.bind(this);
+    this._getComment = this._getComment.bind(this);
 
     this.restoreHandlers();
   }
 
   getTemplate() {
-    return createPopup(this._film, this._state);
+    return createPopup(this._film, this._state, []);
+  }
+
+  async _getComment() {
+    const result = this._api.getComments(this._film.id);
+    return await result;
   }
 
   _closeClickHandler(evt) {
@@ -250,5 +259,16 @@ export default class SiteCreatePopup extends Smart {
       this.getElement().querySelectorAll('.film-details__comment-delete').forEach((elem) =>
         elem.addEventListener('click', this._setDeleteHandler));
     }
+  }
+
+  _setAddHandler(evt) {
+    evt.preventDefault();
+    this._film.comment.add(evt.target.value);
+    this._callback.deleteComment(this._film);
+  }
+
+  setAddHandler(callback) {
+    this._callback.deleteComment = callback;
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('click', this._setAddHandler);
   }
 }

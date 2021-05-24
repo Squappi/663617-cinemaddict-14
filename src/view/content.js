@@ -14,7 +14,7 @@ const createContentList = (task) => {
   let descriptionStr = description;
 
   if (descriptionStr.length > 140) {
-    descriptionStr = descriptionStr.substring(0, 140).concat('...');
+    descriptionStr = descriptionStr.substring(0, 139).concat('...');
   }
 
   return `<article class="film-card">
