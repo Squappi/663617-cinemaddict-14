@@ -25,7 +25,6 @@ export default class GenerateSite {
     this._renderFilmsCount = FILMS_COUNT;
 
     this._renderingSortMenu = new SiteMenuSort();
-    this._currentSortType = SortType.DEFAULT;
 
     this._renderButton = new SiteButton();
     this._renderUserView = new SiteMenuUser(this._tasksModel.getTasks(this._filterModel.getFilter()));
@@ -122,15 +121,6 @@ export default class GenerateSite {
       presenter.resetView();
     }
     //обход всех остальных popup presenters и вызов resetView
-  }
-
-  _updateItemInList(list, item) {
-    const resultList = list.slice();
-    const index = resultList.findIndex((i) => i.id = item.id);
-    if (index >= 0) {
-      resultList[index] = item;
-    }
-    return resultList;
   }
 
   _changeData(task) {

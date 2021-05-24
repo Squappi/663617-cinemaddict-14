@@ -165,6 +165,10 @@ export default class popupPresenter {
     this._popupTask.setCloseHandler(this._handleClosePopup);
     this._popupTask.setAddHandler(this._changeData);
 
+    this._api.getComments(this._task.id)
+      .then((comments) => {
+        this._popupTask.setComments(comments);
+      });
     this._changeMode();
     document.body.appendChild(this._popupTask.getElement());
     document.addEventListener('keydown', this._handleClosePopupEsc);

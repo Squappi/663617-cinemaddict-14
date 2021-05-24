@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { formatDuration } from '../mock/const.js';
+import {formatDuration} from '../mock/const.js';
 import Smart from '../presenter/smart.js';
 import he from 'he';
 
@@ -111,7 +111,7 @@ const createPopup = (film, state = {}, comment) => {
         ${comment.map(({emoji, message, author, data, id}) => `
           <li class="film-details__comment">
           <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${emoji ? emoji: 'smile.png'}" width="55" height="55" alt="emoji-smile">
+            <img src="./images/emoji/${emoji ? emoji : 'smile.png'}" width="55" height="55" alt="emoji-smile">
           </span>
           <div>
             <p class="film-details__comment-text">${message}</p>
@@ -133,9 +133,9 @@ const createPopup = (film, state = {}, comment) => {
 
           <div class="film-details__emoji-list">
             ${EMOJIES.map((emoji) => `
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji ? emoji: 'smile'}" value="${emoji ? emoji: 'smile'}"${emoji === state.emoji ? ' checked' : ''}>
-            <label class="film-details__emoji-label" for="emoji-${emoji ? emoji: 'smile'}">
-              <img src="./images/emoji/${emoji ? emoji: 'smile'}.png" width="30" height="30" alt="emoji">
+            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji ? emoji : 'smile'}" value="${emoji ? emoji : 'smile'}"${emoji === state.emoji ? ' checked' : ''}>
+            <label class="film-details__emoji-label" for="emoji-${emoji ? emoji : 'smile'}">
+              <img src="./images/emoji/${emoji ? emoji : 'smile'}.png" width="30" height="30" alt="emoji">
             </label>
             `).join('')}
           </div>
@@ -153,6 +153,7 @@ export default class SiteCreatePopup extends Smart {
     this._state = {};
     this._api = api;
     this._isLoading = false;
+    this._comments = [];
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
@@ -168,7 +169,12 @@ export default class SiteCreatePopup extends Smart {
   }
 
   getTemplate() {
-    return createPopup(this._film, this._state, []);
+    return createPopup(this._film, this._state, this._comments || []);
+  }
+
+  setComments(comments) {
+    this._comments = comments;
+    this.updateElement();
   }
 
   async _getComment() {
@@ -225,7 +231,7 @@ export default class SiteCreatePopup extends Smart {
     this._addEmojiListener();
     this._addTextAreaListener();
 
-    if(this._callback.closeClick) {
+    if (this._callback.closeClick) {
       this.setCloseHandler(this._callback.closeClick);
     }
   }
@@ -247,7 +253,7 @@ export default class SiteCreatePopup extends Smart {
 
   _setDeleteHandler(evt) {
     evt.preventDefault();
-    const comment = this._film.comment.filter((com) =>{
+    const comment = this._film.comment.filter((com) => {
       return com.id == evt.target.dataset.id;
     })[0];
     this._callback.deleteComment(comment);
@@ -255,7 +261,7 @@ export default class SiteCreatePopup extends Smart {
 
   setDeleteHandler(callback) {
     this._callback.deleteComment = callback;
-    if(this.getElement().querySelector('.film-details__comment-delete')) {
+    if (this.getElement().querySelector('.film-details__comment-delete')) {
       this.getElement().querySelectorAll('.film-details__comment-delete').forEach((elem) =>
         elem.addEventListener('click', this._setDeleteHandler));
     }

@@ -47,7 +47,7 @@ export const createStatistic = (films, period) => {
   document.querySelectorAll('.statistic__item-text')[1].innerHTML = dayjs.duration(statistic.totalTime,'minutes')
     .format('H[h] mm[m]');
   document.querySelectorAll('.statistic__item-text')[2].innerHTML = statistic.maxGenre;
-  const myChart = new Chart(statisticCtx, {
+  new Chart(statisticCtx, {
     plugins: [ChartDataLabels],
     type: 'horizontalBar',
     data: {

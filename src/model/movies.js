@@ -35,6 +35,7 @@ export default class Movies extends Observer {
       const copyFilms = this._tasks.slice();
       copyFilms[oldFilmIndex] = film;
       this._tasks = copyFilms;
+      this._notify("updateTasks", this._tasks);
     }
   }
 }
