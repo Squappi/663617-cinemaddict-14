@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
 };
 
 const SuccessHTTPStatusRange = {
@@ -53,6 +54,17 @@ export default class Api {
       .catch(Api.catchError);
   }
 
+  addComment(film, comment) {
+    return this._load({
+      url:'comment/' + film.id,
+      method: Method.POST,
+      body:{
+        comment: comment.text,
+        emotion: comment.emoji,
+      }},
+    ).then(Api.toJSON);
+  }
+
   static checkStatus(response) {
     if (
       response.status < SuccessHTTPStatusRange.MIN ||
@@ -74,7 +86,6 @@ export default class Api {
 
   _updateFilmStructure(films) {
     return films.map((film) => {
-      console.log(film);
       return {
         id: film.id,
         poster: film.film_info.poster,

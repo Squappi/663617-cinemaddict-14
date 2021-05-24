@@ -103,7 +103,6 @@ export const createStatistic = (films, period) => {
       },
     },
   });
-  myChart.width;
 };
 
 

@@ -6,7 +6,6 @@ import he from 'he';
 const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
 
 const createPopup = (film, state = {}, comment) => {
-  console.log(comment);
   const {
     ageRestriction,
     director,
@@ -105,16 +104,16 @@ const createPopup = (film, state = {}, comment) => {
 
     <div class="film-details__bottom-container">
       <section class="film-details__comments-wrap">
-        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">0</span></h3>
+        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comment.length}</span></h3>
 
         <ul class="film-details__comments-list">
-        ${comment.map(({emoji, message, author, data, id}) => `
+        ${comment.map(({emotion, comment, author, data, id}) => `
           <li class="film-details__comment">
           <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${emoji ? emoji : 'smile.png'}" width="55" height="55" alt="emoji-smile">
+            <img src="./images/emoji/${emotion ? emotion + '.png' : 'smile.png'}" width="55" height="55" alt="emoji-smile">
           </span>
           <div>
-            <p class="film-details__comment-text">${message}</p>
+            <p class="film-details__comment-text">${comment}</p>
             <p class="film-details__comment-info">
               <span class="film-details__comment-author">${author}</span>
               <span class="film-details__comment-day">${dayjs(data).format('YYYY/MM/DD HH:MM')}</span>
@@ -163,7 +162,8 @@ export default class SiteCreatePopup extends Smart {
     this.getTemplate = this.getTemplate.bind(this);
     this.setDeleteHandler = this.setDeleteHandler.bind(this);
     this._setAddHandler = this._setAddHandler.bind(this);
-    this._getComment = this._getComment.bind(this);
+    this._addComment = this._addComment.bind(this);
+    this.addComment = this.addComment.bind(this);
 
     this.restoreHandlers();
   }
@@ -175,11 +175,6 @@ export default class SiteCreatePopup extends Smart {
   setComments(comments) {
     this._comments = comments;
     this.updateElement();
-  }
-
-  async _getComment() {
-    const result = this._api.getComments(this._film.id);
-    return await result;
   }
 
   _closeClickHandler(evt) {
@@ -195,6 +190,7 @@ export default class SiteCreatePopup extends Smart {
   //WatchList
 
   _addToWatchListHandler() {
+    console.log('hhhh');
     this._callback.addToWatchList();
   }
 
@@ -237,6 +233,13 @@ export default class SiteCreatePopup extends Smart {
   }
 
   _addTextAreaListener() {
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('keydown', (evt) => {
+      if((evt.metaKey || evt.ctrlKey) && evt.keyCode == 13) {
+        if(evt.target.value !== '' || !this._state.emoji) {
+          this.addComment();
+        }
+      }
+    });
     this.getElement().querySelector('.film-details__comment-input').addEventListener('change', (evt) => {
       this._state.text = evt.target.value;
     });
@@ -249,6 +252,17 @@ export default class SiteCreatePopup extends Smart {
         this.updateElement();
       });
     });
+  }
+
+  _addComment(callback) {
+    this._callback.addComment = callback;
+  }
+
+  addComment() {
+    this._callback.addComment(this._film, this._state)
+      .then(() => {
+        this.updateElement();
+      });
   }
 
   _setDeleteHandler(evt) {

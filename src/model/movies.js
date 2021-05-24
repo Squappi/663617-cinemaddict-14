@@ -31,11 +31,12 @@ export default class Movies extends Observer {
     const oldFilmIndex = this._tasks.findIndex((task) => {
       return task.id === film.id;
     });
+    console.log(oldFilmIndex);
     if (oldFilmIndex >= 0) {
       const copyFilms = this._tasks.slice();
       copyFilms[oldFilmIndex] = film;
       this._tasks = copyFilms;
-      this._notify("updateTasks", this._tasks);
+      this._notify('updateTasks', this._tasks);
     }
   }
 }

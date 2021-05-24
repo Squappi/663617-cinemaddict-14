@@ -114,6 +114,13 @@ export default class popupPresenter {
 
     this._popupTask = new SiteCreatePopup(task, this._api);
 
+    this._popupTask.setAddToWatchListHandler(this._addToWatch);
+    this._popupTask.setAddToHistoryHandler(this._addToHistory);
+    this._popupTask.setAddFavoritesHandler(this._addToFavorite);
+    this._popupTask.setDeleteHandler(this._deleteComment);
+    this._popupTask.setCloseHandler(this._handleClosePopup);
+    this._popupTask.setAddHandler(this._changeData);
+
     if (previousTaskRender) {
       this._taskList.replaceChild(this._taskRender.getElement(), previousTaskRender.getElement());
     } else {
@@ -158,17 +165,13 @@ export default class popupPresenter {
   }
 
   _handleOpenPopup() {
-    this._popupTask.setAddToWatchListHandler(this._addToWatch);
-    this._popupTask.setAddToHistoryHandler(this._addToHistory);
-    this._popupTask.setAddFavoritesHandler(this._addToFavorite);
-    this._popupTask.setDeleteHandler(this._deleteComment);
-    this._popupTask.setCloseHandler(this._handleClosePopup);
-    this._popupTask.setAddHandler(this._changeData);
-
     this._api.getComments(this._task.id)
       .then((comments) => {
         this._popupTask.setComments(comments);
       });
+    this._popupTask._addComment((film, comment) => {
+      return this._api.addComment(film, comment);
+    });
     this._changeMode();
     document.body.appendChild(this._popupTask.getElement());
     document.addEventListener('keydown', this._handleClosePopupEsc);
