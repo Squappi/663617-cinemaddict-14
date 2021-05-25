@@ -9,6 +9,7 @@ import {createStatistic} from '../view/stats.js';
 import popupPresenter from './popup-task.js';
 import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
 import {SortType} from '../mock/const.js';
+import LoadingMessage from '../view/loading.js';
 
 const FILMS_COUNT = 5;
 const EXTRA = 2;
@@ -50,7 +51,7 @@ export default class GenerateSite {
     if (_event !== 'changeFilter' && _event !== 'addToList') {
       return;
     }
-    if(_event === 'changeFilter') {
+    if (_event === 'changeFilter') {
       this._mapMain.clear();
       this._renderFilmsCount = FILMS_COUNT;
     }
@@ -102,13 +103,13 @@ export default class GenerateSite {
     this._renderNumderFilm();
   }
 
-  _showHideStats(event) {
-    if(event !== 'showStats' && event !== 'showFilms') {
+  _showHideStats(evt) {
+    if (evt !== 'showStats' && evt !== 'showFilms') {
       return;
     }
-    if(event === 'showStats') {
+    if (evt === 'showStats') {
       this._showStats();
-      createStatistic(this._renderSite.filter((film) =>{
+      createStatistic(this._renderSite.filter((film) => {
         return film.watchHistory.isWatch;
       }), 'all-time');
     } else {
@@ -125,22 +126,27 @@ export default class GenerateSite {
 
   _changeData(task) {
     //+update task in this._renderSite
-    this._tasksModel.updateFilm(task);
-    this._renderSite = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
-    this._sourcedFilms = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
-    this._handleChangeFilter('addToList', this._filterModel.getFilter());
 
-    if (this._mapMain.has(task.id)) {
-      this._mapMain.get(task.id).init(task);
-    }
+    this._api.updateMovie(task)
+      .then(() => {
+        this._tasksModel.updateFilm(task);
 
-    if (this._mapTopComment.has(task.id)) {
-      this._mapTopComment.get(task.id).init(task);
-    }
+        this._renderSite = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
+        this._sourcedFilms = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
+        this._handleChangeFilter('addToList', this._filterModel.getFilter());
 
-    if (this._mapTopRate.has(task.id)) {
-      this._mapTopRate.get(task.id).init(task);
-    }
+        if (this._mapMain.has(task.id)) {
+          this._mapMain.get(task.id).init(task);
+        }
+
+        if (this._mapTopComment.has(task.id)) {
+          this._mapTopComment.get(task.id).init(task);
+        }
+
+        if (this._mapTopRate.has(task.id)) {
+          this._mapTopRate.get(task.id).init(task);
+        }
+      });
   }
 
   _sortByData(sortType) {
@@ -161,13 +167,6 @@ export default class GenerateSite {
     this._mapMain.clear();
     this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
   }
-
-  // _handleSortButtonClick(sortType) {
-  //   if(this._currentSortType === sortType) {
-  //     return;
-  //   }
-  //   this._sortByData(sortType);
-  // }
 
   _renderSort() {
     renderElement(this._renderingMarkup, this._renderingSortMenu.getElement(), renderPosition.BEFOREEND);

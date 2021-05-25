@@ -1,7 +1,6 @@
 import Abstract from './utils-abstract';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { GENRES } from '../mock/const';
 import { statsData } from '../utils';
 import dayjs from 'dayjs';
 
@@ -37,12 +36,19 @@ export const createStatistic = (films, period) => {
   const currentFilms = films.filter((film) => {
     return statsData(film.watchHistory.watchDate, new Date(), period);
   });
+  const genre = [];
+  for(let i = 0; i < currentFilms.length; i++) {
+    for(let j = 0; j < currentFilms.genre.length; j++) {
+      if(!genre.contains(currentFilms.genre[j])) {
+        genre.push(currentFilms.genre[j]);
+      }
+    }
+  }
   const BAR_HEIGHT = 50;
   const statisticCtx = document.querySelector('.statistic__chart').getContext('2d');
-  // Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
 
-  statisticCtx.height = BAR_HEIGHT * GENRES.length;
-  const statistic = countStatistic(GENRES, currentFilms);
+  statisticCtx.height = BAR_HEIGHT * genre.length;
+  const statistic = countStatistic(genre, currentFilms);
   document.querySelectorAll('.statistic__item-text')[0].innerHTML = statistic.totalCount;
   document.querySelectorAll('.statistic__item-text')[1].innerHTML = dayjs.duration(statistic.totalTime,'minutes')
     .format('H[h] mm[m]');
@@ -51,7 +57,7 @@ export const createStatistic = (films, period) => {
     plugins: [ChartDataLabels],
     type: 'horizontalBar',
     data: {
-      labels: GENRES,
+      labels: genre,
       datasets: [{
         data: statistic.countsFilms,
         backgroundColor: '#ffe800',

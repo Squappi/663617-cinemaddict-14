@@ -1,9 +1,10 @@
-import dayjs from 'dayjs';
+import Movies from './model/movies';
 
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
   POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 const SuccessHTTPStatusRange = {
@@ -28,14 +29,18 @@ export default class Api {
       .then(Api.toJSON);
   }
 
+  deleteComment(id) {
+    return this._load({url: 'comments/' + id, method: Method.DELETE});
+  }
+
   updateMovie(film) {
     return this._load({
-      url: `tasks/${film.id}`,
+      url: `movies/${film.id}`,
       method: Method.PUT,
-      body: JSON.stringify(film),
-      headers: new Headers({'Content-Type': 'application/json'}),
+      body: JSON.stringify(Movies.adaptToServer(film)),
     })
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then(Movies.adaptToClient);
   }
 
   _load({
@@ -45,7 +50,7 @@ export default class Api {
     headers = new Headers(),
   }) {
     headers.append('Authorization', this._authorization);
-
+    headers.append('Content-Type', 'application/json');
     return fetch(
       `${this._endPoint}/${url}`,
       {method, body, headers},
@@ -56,12 +61,13 @@ export default class Api {
 
   addComment(film, comment) {
     return this._load({
-      url:'comment/' + film.id,
+      url:'comments/' + film.id,
       method: Method.POST,
-      body:{
+      body: JSON.stringify({
         comment: comment.text,
         emotion: comment.emoji,
-      }},
+      }),
+    },
     ).then(Api.toJSON);
   }
 
@@ -86,32 +92,7 @@ export default class Api {
 
   _updateFilmStructure(films) {
     return films.map((film) => {
-      return {
-        id: film.id,
-        poster: film.film_info.poster,
-        nameFilm: film.film_info.title,
-        rating: film.film_info.total_rating,
-        year: dayjs(film.film_info.release.date).format('YYYY'),
-        duration: film.film_info.runtime,
-        genre: film.film_info.genre,
-        description: film.film_info.description,
-        comment: film.comments,
-        ageRestriction: film.film_info.age_rating,
-        director: film.film_info.director,
-        writter: film.film_info.writers,
-        releaseDate: dayjs(film.film_info.release.date).format('DD MMMM YYYY'),
-        country: film.film_info.release.release_country,
-        actors: film.film_info.actors,
-        allMovies: {
-          watchList: film.user_details.watchlist,
-          history: film.user_details.already_watched,
-          favorites: film.user_details.favorite,
-        },
-        watchHistory: {
-          isWatch: film.user_details.already_watched,
-          watchDate: dayjs(film.user_details.watching_date),
-        },
-      };
+      return Movies.adaptToClient(film);
     });
   }
 }

@@ -85,12 +85,14 @@ export default class popupPresenter {
       {},
       this._task,
       {
-        comment: this._task.comment.filter((comment) => {
+        comments: this._task.comments.filter((comment) => {
           return comment !== deleteComment;
         }),
       },
     );
-    this._changeData(task);
+    return this._api.deleteComment(deleteComment).then(() => {
+      this._changeData(task);
+    });
   }
 
   init(task) {
@@ -119,7 +121,15 @@ export default class popupPresenter {
     this._popupTask.setAddFavoritesHandler(this._addToFavorite);
     this._popupTask.setDeleteHandler(this._deleteComment);
     this._popupTask.setCloseHandler(this._handleClosePopup);
-    this._popupTask.setAddHandler(this._changeData);
+
+    this._popupTask._addComment((film, comment) => {
+      return this._api.addComment(film, comment).then(() => {
+        this._loadComments();
+        this._popupTask.clearTextArea();
+      }).catch(() => {
+        this._popupTask.errorComment();
+      });
+    });
 
     if (previousTaskRender) {
       this._taskList.replaceChild(this._taskRender.getElement(), previousTaskRender.getElement());
@@ -131,24 +141,24 @@ export default class popupPresenter {
     if (this._mode === Mode.EDITING) {
       if (previousPopup) {
         document.body.replaceChild(this._popupTask.getElement(), previousPopup.getElement());
+        this._loadComments();
       } else {
         this._handleOpenPopup();
       }
     }
   }
 
+  _loadComments() {
+    this._api.getComments(this._task.id)
+      .then((comments) => {
+        this._popupTask.setComments(comments);
+      });
+  }
+
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
       this._handleClosePopup();
     }
-    //
-    // this._popupTask.setEditClickHandler(this._handleClosePopup);
-    //
-    // if (previousTaskRender) {
-    //   this._taskList.replaceChild(this._taskRender.getElement(), previousTaskRender.getElement());
-    // } else {
-    //   renderElement(this._taskList, this._taskRender.getElement());
-    // }
   }
 
   _handleClosePopupEsc(evt) {
@@ -165,13 +175,7 @@ export default class popupPresenter {
   }
 
   _handleOpenPopup() {
-    this._api.getComments(this._task.id)
-      .then((comments) => {
-        this._popupTask.setComments(comments);
-      });
-    this._popupTask._addComment((film, comment) => {
-      return this._api.addComment(film, comment);
-    });
+    this._loadComments();
     this._changeMode();
     document.body.appendChild(this._popupTask.getElement());
     document.addEventListener('keydown', this._handleClosePopupEsc);

@@ -15,8 +15,8 @@ export default class FilterPresenter {
     this._tasksModel.addObserver(this._handleTasksChange);
   }
 
-  _handleTasksChange(event) {
-    if (event === 'updateTasks') {
+  _handleTasksChange(evt) {
+    if (evt === 'updateTasks') {
       this.init();
     }
   }

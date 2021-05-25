@@ -14,15 +14,15 @@ api.getMovies().then((films) => {
   render(films);
 });
 
-const render = (arrayFilms) => {
+const render = (films) => {
   const siteMainElement = document.querySelector('.main');
   const siteHeaderElement = document.querySelector('.header');
   const siteFooterElement = document.querySelector('.footer__statistics');
 
   const taskModel = new Movies();
-  taskModel.setTasks(arrayFilms);
+  taskModel.setTasks(films);
   const filterModel = new FilterModel();
-  const stats = new StatsView(arrayFilms);
+  const stats = new StatsView(films);
 
 
   const filterRender = new FilterPresenter(taskModel, siteMainElement, filterModel);
@@ -30,6 +30,4 @@ const render = (arrayFilms) => {
 
   filterRender.init();
   renderSiteElement.init();
-
-  // renderElement(siteFooterElement, new SiteCreateNumberFilms(arrayFilms.length).getElement(), renderPosition.BEFOREEND);
 };

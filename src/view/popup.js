@@ -159,11 +159,9 @@ export default class SiteCreatePopup extends Smart {
     this._addToHistoryHandler = this._addToHistoryHandler.bind(this);
     this._addToFavoritesHandler = this._addToFavoritesHandler.bind(this);
     this._setDeleteHandler = this._setDeleteHandler.bind(this);
-    this.getTemplate = this.getTemplate.bind(this);
-    this.setDeleteHandler = this.setDeleteHandler.bind(this);
-    this._setAddHandler = this._setAddHandler.bind(this);
     this._addComment = this._addComment.bind(this);
     this.addComment = this.addComment.bind(this);
+    this.errorComment = this.errorComment.bind(this);
 
     this.restoreHandlers();
   }
@@ -177,9 +175,16 @@ export default class SiteCreatePopup extends Smart {
     this.updateElement();
   }
 
+  clearTextArea() {
+    this._state.text = '';
+    this._state.emoji = '';
+    this.updateElement();
+  }
+
   _closeClickHandler(evt) {
     evt.preventDefault();
     this._callback.closeClick();
+    evt.target.removeEventListener('click', this._closeClickHandler);
   }
 
   setCloseHandler(callback) {
@@ -190,7 +195,6 @@ export default class SiteCreatePopup extends Smart {
   //WatchList
 
   _addToWatchListHandler() {
-    console.log('hhhh');
     this._callback.addToWatchList();
   }
 
@@ -230,17 +234,36 @@ export default class SiteCreatePopup extends Smart {
     if (this._callback.closeClick) {
       this.setCloseHandler(this._callback.closeClick);
     }
+    if (this._callback.addToWatchList) {
+      this.setAddToWatchListHandler(this._callback.addToWatchList);
+    }
+    if (this._callback.deleteComment) {
+      this.setDeleteHandler(this._callback.deleteComment);
+    }
+    if (this._callback.addToHistory) {
+      this.setAddToHistoryHandler(this._callback.addToHistory);
+    }
+    if (this._callback.addToFavorite) {
+      this.setAddFavoritesHandler(this._callback.addToFavorite);
+    }
+    if (this._callback.addComment) {
+      this._addComment(this._callback.addComment);
+    }
   }
 
   _addTextAreaListener() {
     this.getElement().querySelector('.film-details__comment-input').addEventListener('keydown', (evt) => {
       if((evt.metaKey || evt.ctrlKey) && evt.keyCode == 13) {
         if(evt.target.value !== '' || !this._state.emoji) {
+          evt.target.disabled = true;
+          this.getElement().querySelectorAll('input.film-details__emoji-item').forEach((element) => {
+            element.disabled = true;
+          });
           this.addComment();
         }
       }
     });
-    this.getElement().querySelector('.film-details__comment-input').addEventListener('change', (evt) => {
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('input', (evt) => {
       this._state.text = evt.target.value;
     });
   }
@@ -259,18 +282,21 @@ export default class SiteCreatePopup extends Smart {
   }
 
   addComment() {
-    this._callback.addComment(this._film, this._state)
-      .then(() => {
-        this.updateElement();
-      });
+    this._callback.addComment(this._film, this._state);
   }
 
   _setDeleteHandler(evt) {
     evt.preventDefault();
-    const comment = this._film.comment.filter((com) => {
+    evt.target.innerHTML = 'Deleting';
+    evt.target.disabled = true;
+    const comment = this._comments.filter((com) => {
       return com.id == evt.target.dataset.id;
     })[0];
-    this._callback.deleteComment(comment);
+    this._callback.deleteComment(comment.id)
+      .catch(() => {
+        evt.target.innerHTML = 'Delete';
+        evt.target.disabled = false;
+      });
   }
 
   setDeleteHandler(callback) {
@@ -281,14 +307,15 @@ export default class SiteCreatePopup extends Smart {
     }
   }
 
-  _setAddHandler(evt) {
-    evt.preventDefault();
-    this._film.comment.add(evt.target.value);
-    this._callback.deleteComment(this._film);
-  }
-
-  setAddHandler(callback) {
-    this._callback.deleteComment = callback;
-    this.getElement().querySelector('.film-details__comment-input').addEventListener('click', this._setAddHandler);
+  errorComment() {
+    this.getElement().querySelector('.film-details__comment-input').disabled = false;
+    this.getElement().querySelectorAll('input.film-details__emoji-item').forEach((element) => {
+      element.disabled = false;
+    });
+    this.getElement().querySelector('.film-details__new-comment').classList.add('shake');
+    const timeout = setTimeout(() => {
+      this.getElement().querySelector('.film-details__new-comment').classList.remove('shake');
+      clearTimeout(timeout);
+    }, 1000);
   }
 }
