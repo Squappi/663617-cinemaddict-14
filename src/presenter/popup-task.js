@@ -132,7 +132,7 @@ export default class popupPresenter {
     });
 
     if (previousTaskRender) {
-      this._taskList.replaceChild(this._taskRender.getElement(), previousTaskRender.getElement());
+      // this._taskList.replaceChild(this._taskRender.getElement(), previousTaskRender.getElement());
     } else {
       renderElement(this._taskList, this._taskRender.getElement());
     }

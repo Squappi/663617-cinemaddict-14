@@ -1,12 +1,12 @@
-import Abstract from './utils-abstract';
+import Smart from '../presenter/smart';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { statsData } from '../utils';
-import dayjs from 'dayjs';
 
-const countStatistic = (genre, films) => {
+const countStatistic = (films) => {
+  const genre = Array.from(new Set(films.flatMap((film) => film.genre)).values());
   const countsFilms = [];
-  let totalCount = 0;
+  const totalCount = films.length;
   let maxGenre = '';
   let maxCount = 0;
   let totalTime = 0;
@@ -15,8 +15,7 @@ const countStatistic = (genre, films) => {
       return film.genre.includes(genre[i]);
     }).length;
     countsFilms.push(length);
-    totalCount += length;
-    if(length > maxCount) {
+    if (length > maxCount) {
       maxCount = length;
       maxGenre = genre[i];
     }
@@ -25,6 +24,7 @@ const countStatistic = (genre, films) => {
     totalTime += parseInt(film.duration);
   });
   return {
+    genre: genre,
     countsFilms: countsFilms,
     totalCount: totalCount,
     maxGenre: maxGenre,
@@ -32,32 +32,16 @@ const countStatistic = (genre, films) => {
   };
 };
 
-export const createStatistic = (films, period) => {
-  const currentFilms = films.filter((film) => {
-    return statsData(film.watchHistory.watchDate, new Date(), period);
-  });
-  const genre = [];
-  for(let i = 0; i < currentFilms.length; i++) {
-    for(let j = 0; j < currentFilms.genre.length; j++) {
-      if(!genre.contains(currentFilms.genre[j])) {
-        genre.push(currentFilms.genre[j]);
-      }
-    }
-  }
+export const createStatistic = (statistic) => {
   const BAR_HEIGHT = 50;
   const statisticCtx = document.querySelector('.statistic__chart').getContext('2d');
+  statisticCtx.height = BAR_HEIGHT * statistic.genre.length;
 
-  statisticCtx.height = BAR_HEIGHT * genre.length;
-  const statistic = countStatistic(genre, currentFilms);
-  document.querySelectorAll('.statistic__item-text')[0].innerHTML = statistic.totalCount;
-  document.querySelectorAll('.statistic__item-text')[1].innerHTML = dayjs.duration(statistic.totalTime,'minutes')
-    .format('H[h] mm[m]');
-  document.querySelectorAll('.statistic__item-text')[2].innerHTML = statistic.maxGenre;
   new Chart(statisticCtx, {
     plugins: [ChartDataLabels],
     type: 'horizontalBar',
     data: {
-      labels: genre,
+      labels: statistic.genre,
       datasets: [{
         data: statistic.countsFilms,
         backgroundColor: '#ffe800',
@@ -112,13 +96,13 @@ export const createStatistic = (films, period) => {
 };
 
 
-const createStats = (filmsCount) => {
+const createStats = (statistic) => {
   let rang = '';
-  if(filmsCount >= 1 && filmsCount <= 10) {
+  if(statistic.totalCount >= 1 && statistic.totalCount <= 10) {
     rang = 'novice';
-  } else if(filmsCount >= 11 && filmsCount <= 20) {
+  } else if (statistic.totalCount >= 11 && statistic.totalCount <= 20) {
     rang = 'fan';
-  } else if (filmsCount > 20) {
+  } else if (statistic.totalCount > 20) {
     rang = 'movie buff';
   }
   return `<section class="statistic visually-hidden">
@@ -150,7 +134,7 @@ const createStats = (filmsCount) => {
   <ul class="statistic__text-list">
     <li class="statistic__text-item">
       <h4 class="statistic__item-title">You watched</h4>
-      <p class="statistic__item-text"><span class="statistic__item-description">movies</span></p>
+      <p class="statistic__item-text">${statistic.totalCount}<span class="statistic__item-description">movies</span></p>
     </li>
     <li class="statistic__text-item">
       <h4 class="statistic__item-title">Total duration</h4>
@@ -169,21 +153,43 @@ const createStats = (filmsCount) => {
 </section>`;
 };
 
-export default class StatsView extends Abstract {
-  constructor(films) {
+export default class StatsView extends Smart {
+  constructor(taskModel) {
     super();
-    this._films = films;
+    this._taskModel = taskModel;
+    this._currentFilter = 'all-time';
+    this.recalculate();
+    this.restoreHandlers();
+  }
 
-    this.getElement().querySelector('.statistic__filters').addEventListener('change', (evt) => {
-      evt.preventDefault();
-      createStatistic(films.filter((film) =>{
-        return film.watchHistory.isWatch;
-      }), evt.target.value);
-    });
+  recalculate() {
+    this._statistic = countStatistic(this._taskModel.getTasks('history')
+      .filter((film) => {
+        return statsData(film.watchHistory.watchDate, new Date(), this._currentFilter);
+      }));
   }
 
   getTemplate() {
-    return createStats(this._films.length);
+    return createStats(this._statistic);
+  }
+
+  restoreHandlers() {
+    this.getElement().querySelector('.statistic__filters').addEventListener('change', (evt) => {
+      evt.preventDefault();
+      this._currentFilter = evt.target.value;
+      this.updateStats();
+    });
+  }
+
+  updateStats() {
+    this.recalculate();
+    this.updateElement();
+    createStatistic(this._statistic);
+  }
+
+  show() {
+    this.updateStats();
+    super.show();
   }
 }
 

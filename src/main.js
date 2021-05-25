@@ -9,25 +9,22 @@ const AUTHORIZATION = 'Basic hS9sd7dfSwcl0sa3j';
 const END_POINT = 'https://14.ecmascript.pages.academy/cinemaddict';
 
 const api = new Api(END_POINT, AUTHORIZATION);
+const siteMainElement = document.querySelector('.main');
+const siteHeaderElement = document.querySelector('.header');
+const siteFooterElement = document.querySelector('.footer__statistics');
+
+const taskModel = new Movies();
+const filterModel = new FilterModel();
+const stats = new StatsView(taskModel);
+
+
+const filterRender = new FilterPresenter(taskModel, siteMainElement, filterModel);
+const renderSiteElement = new GenerateSite(siteMainElement, siteHeaderElement,siteFooterElement, taskModel, filterModel,stats,api);
+
+filterRender.init();
+renderSiteElement.init();
 
 api.getMovies().then((films) => {
-  render(films);
+  taskModel.setTasks(films);
 });
 
-const render = (films) => {
-  const siteMainElement = document.querySelector('.main');
-  const siteHeaderElement = document.querySelector('.header');
-  const siteFooterElement = document.querySelector('.footer__statistics');
-
-  const taskModel = new Movies();
-  taskModel.setTasks(films);
-  const filterModel = new FilterModel();
-  const stats = new StatsView(films);
-
-
-  const filterRender = new FilterPresenter(taskModel, siteMainElement, filterModel);
-  const renderSiteElement = new GenerateSite(siteMainElement, siteHeaderElement,siteFooterElement, taskModel, filterModel,stats,api);
-
-  filterRender.init();
-  renderSiteElement.init();
-};

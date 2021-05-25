@@ -13,6 +13,15 @@ export default class FilterPresenter {
     this._handleTasksChange = this._handleTasksChange.bind(this);
 
     this._tasksModel.addObserver(this._handleTasksChange);
+    this.loading = this.loading.bind(this);
+    this._tasksModel.addObserver(this.loading);
+  }
+
+  loading(evt) {
+    if (evt !== 'isLoading') {
+      return ;
+    }
+    this.init();
   }
 
   _handleTasksChange(evt) {
@@ -23,7 +32,7 @@ export default class FilterPresenter {
 
   init() {
     const oldFilterView = this._renderFilterView;
-    this._renderFilterView = new SiteMenuFilter(this._tasksModel.getTasks(this._filterModel.getFilter()));
+    this._renderFilterView = new SiteMenuFilter(this._tasksModel.getTasks());
 
     if (oldFilterView) {
       const parentElement = oldFilterView.getElement().parentElement;

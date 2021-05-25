@@ -4,15 +4,22 @@ import Observer from '../observer';
 export default class Movies extends Observer {
   constructor() {
     super();
+    this._isLoading = true;
     this._tasks = [];
+  }
+
+  isLoading() {
+    return this._isLoading;
   }
 
   setTasks(tasks) {
     this._tasks.push(...tasks);
+    this._isLoading = false;
+    this._notify('isLoading', tasks);
   }
 
   getTasks(filter) {
-    if (filter === 'AllMovies') {
+    if (!filter || filter === 'AllMovies') {
       return this._tasks;
     } else {
       return this._tasks.filter((film) => {
@@ -21,8 +28,10 @@ export default class Movies extends Observer {
             return film.allMovies.watchList;
           case 'history':
             return film.allMovies.history;
-          default:
+          case 'favorites':
             return film.allMovies.favorites;
+          default:
+            return true;
         }
       });
     }

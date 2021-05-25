@@ -4,7 +4,6 @@ import SiteMenuUser from '../view/user.js';
 import SiteCreateNumberFilms from '../view/number-of-films.js';
 import SiteCreateCards from '../view/cards-container.js';
 import EmptyMessage from '../view/empty.js';
-import {createStatistic} from '../view/stats.js';
 
 import popupPresenter from './popup-task.js';
 import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
@@ -45,6 +44,15 @@ export default class GenerateSite {
     this._filterModel.addObserver(this._handleChangeFilter);
     this._showHideStats = this._showHideStats.bind(this);
     this._filterModel.addObserver(this._showHideStats);
+    this.loading = this.loading.bind(this);
+    this._tasksModel.addObserver(this.loading);
+  }
+
+  loading(evt) {
+    if (evt !== 'isLoading') {
+      return ;
+    }
+    this.renderCards();
   }
 
   _handleChangeFilter(_event, filter) {
@@ -54,10 +62,10 @@ export default class GenerateSite {
     if (_event === 'changeFilter') {
       this._mapMain.clear();
       this._renderFilmsCount = FILMS_COUNT;
+      this._renderSite = this._tasksModel.getTasks(filter).slice();
+      this._sourcedFilms = this._tasksModel.getTasks(filter).slice();
     }
     this._renderFilmsList.innerHTML = '';
-    this._renderSite = this._tasksModel.getTasks(filter).slice();
-    this._sourcedFilms = this._tasksModel.getTasks(filter).slice();
 
     this._renderContainerTasks(0, Math.min(this._renderSite.length, this._renderFilmsCount));
 
@@ -68,11 +76,24 @@ export default class GenerateSite {
   init() {
     this._renderSite = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
     this._sourcedFilms = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
-    this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
 
+    if (this._tasksModel.isLoading()) {
+      renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
+      this._filmsList = this._renderingMarkup.querySelector('.films-list');
+      this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
+      renderElement(this._renderFilmsList,new LoadingMessage().getElement(), renderPosition.BEFOREEND);
+    } else {
+      this.renderCards();
+    }
+  }
+
+  renderCards() {
+    this._renderSite = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
+    this._sourcedFilms = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
+    this._renderFilmsList.innerHTML = '';
     this._renderSort();
     this._renderUser();
-
+    this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
 
     // render Cards
     if (this._renderSite.length === 0) {
@@ -81,7 +102,6 @@ export default class GenerateSite {
       renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
       this._filmsList = this._renderingMarkup.querySelector('.films-list');
       this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
-
       this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
 
       [this._topRateOne, this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
@@ -90,7 +110,6 @@ export default class GenerateSite {
         for (let i = 0; i < EXTRA; i++) {
           this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND));
         }
-
 
         for (let i = 0; i < EXTRA; i++) {
           this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND));
@@ -101,6 +120,7 @@ export default class GenerateSite {
     renderElement(this._renderingMarkup, this._stats.getElement(), renderPosition.BEFOREEND);
 
     this._renderNumderFilm();
+
   }
 
   _showHideStats(evt) {
@@ -109,9 +129,6 @@ export default class GenerateSite {
     }
     if (evt === 'showStats') {
       this._showStats();
-      createStatistic(this._renderSite.filter((film) => {
-        return film.watchHistory.isWatch;
-      }), 'all-time');
     } else {
       this._showFims();
     }
