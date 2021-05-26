@@ -14,9 +14,9 @@ const FILMS_COUNT = 5;
 const EXTRA = 2;
 
 export default class GenerateSite {
-  constructor(renderContainer, renderHeader, renderFooter, tasksModel, filterModel, stats, api) {
+  constructor(renderContainer, renderHeader, renderFooter, filmsModel, filterModel, stats, api) {
     this._filterModel = filterModel;
-    this._tasksModel = tasksModel;
+    this._filmsModel = filmsModel;
     this._stats = stats;
     this._api = api;
     this._renderingMarkup = renderContainer;
@@ -27,7 +27,7 @@ export default class GenerateSite {
     this._renderingSortMenu = new SiteMenuSort();
 
     this._renderButton = new SiteButton();
-    this._renderUserView = new SiteMenuUser(this._tasksModel.getTasks(this._filterModel.getFilter()));
+    this._renderUserView = new SiteMenuUser(this._filmsModel.getTasks(this._filterModel.getFilter()));
     this._renderContainerCards = new SiteCreateCards();
     this._renderEmptyMessage = new EmptyMessage();
     this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
@@ -45,7 +45,7 @@ export default class GenerateSite {
     this._showHideStats = this._showHideStats.bind(this);
     this._filterModel.addObserver(this._showHideStats);
     this.loading = this.loading.bind(this);
-    this._tasksModel.addObserver(this.loading);
+    this._filmsModel.addObserver(this.loading);
   }
 
   loading(evt) {
@@ -62,8 +62,8 @@ export default class GenerateSite {
     if (_event === 'changeFilter') {
       this._mapMain.clear();
       this._renderFilmsCount = FILMS_COUNT;
-      this._renderSite = this._tasksModel.getTasks(filter).slice();
-      this._sourcedFilms = this._tasksModel.getTasks(filter).slice();
+      this._renderSite = this._filmsModel.getTasks(filter).slice();
+      this._sourcedFilms = this._filmsModel.getTasks(filter).slice();
     }
     this._renderFilmsList.innerHTML = '';
 
@@ -74,10 +74,10 @@ export default class GenerateSite {
   }
 
   init() {
-    this._renderSite = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
-    this._sourcedFilms = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
+    this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+    this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
 
-    if (this._tasksModel.isLoading()) {
+    if (this._filmsModel.isLoading()) {
       renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
       this._filmsList = this._renderingMarkup.querySelector('.films-list');
       this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
@@ -88,8 +88,8 @@ export default class GenerateSite {
   }
 
   renderCards() {
-    this._renderSite = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
-    this._sourcedFilms = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
+    this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+    this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
     this._renderFilmsList.innerHTML = '';
     this._renderSort();
     this._renderUser();
@@ -141,27 +141,27 @@ export default class GenerateSite {
     //обход всех остальных popup presenters и вызов resetView
   }
 
-  _changeData(task) {
-    //+update task in this._renderSite
+  _changeData(film) {
+    //+update film in this._renderSite
 
-    this._api.updateMovie(task)
+    this._api.updateMovie(film)
       .then(() => {
-        this._tasksModel.updateFilm(task);
+        this._filmsModel.updateFilm(film);
 
-        this._renderSite = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
-        this._sourcedFilms = this._tasksModel.getTasks(this._filterModel.getFilter()).slice();
+        this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+        this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
         this._handleChangeFilter('addToList', this._filterModel.getFilter());
 
-        if (this._mapMain.has(task.id)) {
-          this._mapMain.get(task.id).init(task);
+        if (this._mapMain.has(film.id)) {
+          this._mapMain.get(film.id).init(film);
         }
 
-        if (this._mapTopComment.has(task.id)) {
-          this._mapTopComment.get(task.id).init(task);
+        if (this._mapTopComment.has(film.id)) {
+          this._mapTopComment.get(film.id).init(film);
         }
 
-        if (this._mapTopRate.has(task.id)) {
-          this._mapTopRate.get(task.id).init(task);
+        if (this._mapTopRate.has(film.id)) {
+          this._mapTopRate.get(film.id).init(film);
         }
       });
   }
@@ -222,10 +222,10 @@ export default class GenerateSite {
     }
   }
 
-  _renderComponent(positionElementMenu, taskForRender) {
+  _renderComponent(positionElementMenu, filmForRender) {
     const popupTaskPresenter = new popupPresenter(positionElementMenu, this._changeData, this._changeMode, this._api);
-    popupTaskPresenter.init(taskForRender);
-    popupTaskPresenter[taskForRender.id] = popupTaskPresenter;
+    popupTaskPresenter.init(filmForRender);
+    popupTaskPresenter[filmForRender.id] = popupTaskPresenter;
     return popupTaskPresenter;
   }
 

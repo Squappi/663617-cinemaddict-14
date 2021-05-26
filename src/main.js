@@ -13,18 +13,20 @@ const siteMainElement = document.querySelector('.main');
 const siteHeaderElement = document.querySelector('.header');
 const siteFooterElement = document.querySelector('.footer__statistics');
 
-const taskModel = new Movies();
+
+const filmModel = new Movies();
 const filterModel = new FilterModel();
-const stats = new StatsView(taskModel);
+const stats = new StatsView(filmModel);
 
 
-const filterRender = new FilterPresenter(taskModel, siteMainElement, filterModel);
-const renderSiteElement = new GenerateSite(siteMainElement, siteHeaderElement,siteFooterElement, taskModel, filterModel,stats,api);
+const filterRender = new FilterPresenter(filmModel, siteMainElement, filterModel);
+const renderSiteElement = new GenerateSite(siteMainElement, siteHeaderElement,siteFooterElement, filmModel, filterModel,stats,api);
+
 
 filterRender.init();
 renderSiteElement.init();
 
 api.getMovies().then((films) => {
-  taskModel.setTasks(films);
+  filmModel.setTasks(films);
 });
 

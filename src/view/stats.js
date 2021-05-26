@@ -2,6 +2,7 @@ import Smart from '../presenter/smart';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { statsData } from '../utils';
+import { formatDuration } from '../mock/const';
 
 const countStatistic = (films) => {
   const genre = Array.from(new Set(films.flatMap((film) => film.genre)).values());
@@ -10,14 +11,14 @@ const countStatistic = (films) => {
   let maxGenre = '';
   let maxCount = 0;
   let totalTime = 0;
-  for (let i = 0; i < genre.length; i++) {
+  for (const oneGenre of genre) {
     const length = films.filter((film) => {
-      return film.genre.includes(genre[i]);
+      return film.genre.includes(oneGenre);
     }).length;
     countsFilms.push(length);
     if (length > maxCount) {
       maxCount = length;
-      maxGenre = genre[i];
+      maxGenre = oneGenre;
     }
   }
   films.forEach((film) => {
@@ -32,7 +33,7 @@ const countStatistic = (films) => {
   };
 };
 
-export const createStatistic = (statistic) => {
+const createStatistic = (statistic) => {
   const BAR_HEIGHT = 50;
   const statisticCtx = document.querySelector('.statistic__chart').getContext('2d');
   statisticCtx.height = BAR_HEIGHT * statistic.genre.length;
@@ -96,13 +97,13 @@ export const createStatistic = (statistic) => {
 };
 
 
-const createStats = (statistic) => {
+const createStats = (statistic, filmCount, currentFilter) => {
   let rang = '';
-  if(statistic.totalCount >= 1 && statistic.totalCount <= 10) {
+  if(filmCount >= 1 && filmCount <= 10) {
     rang = 'novice';
-  } else if (statistic.totalCount >= 11 && statistic.totalCount <= 20) {
+  } else if (filmCount >= 11 && filmCount <= 20) {
     rang = 'fan';
-  } else if (statistic.totalCount > 20) {
+  } else if (filmCount > 20) {
     rang = 'movie buff';
   }
   return `<section class="statistic visually-hidden">
@@ -115,19 +116,20 @@ const createStats = (statistic) => {
   <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">
     <p class="statistic__filters-description">Show stats:</p>
 
-    <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-all-time" value="all-time" checked>
+    <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-all-time" value="all-time" ${(currentFilter === 'all-time') ? 'checked' : ''}>
     <label for="statistic-all-time" class="statistic__filters-label">All time</label>
 
-    <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-today" value="today">
+    <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-today" value="today" ${(currentFilter === 'today') ? 'checked' : ''}>
     <label for="statistic-today" class="statistic__filters-label">Today</label>
 
-    <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-week" value="week">
+    <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-week" value="week" ${(currentFilter === 'week') ? 'checked' : ''}>
     <label for="statistic-week" class="statistic__filters-label">Week</label>
 
-    <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-month" value="month">
+    <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-month" value="month" ${(currentFilter === 'month') ? 'checked' : ''}>
     <label for="statistic-month" class="statistic__filters-label">Month</label>
 
-    <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-year" value="year">
+    <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-year" value="year" ${(currentFilter === 'year') ? 'checked' : ''}>
+
     <label for="statistic-year" class="statistic__filters-label">Year</label>
   </form>
 
@@ -138,11 +140,11 @@ const createStats = (statistic) => {
     </li>
     <li class="statistic__text-item">
       <h4 class="statistic__item-title">Total duration</h4>
-      <p class="statistic__item-text">130 <span class="statistic__item-description">h</span> 22 <span class="statistic__item-description">m</span></p>
+      <p class="statistic__item-text">${formatDuration(statistic.totalTime)}</p>
     </li>
     <li class="statistic__text-item">
       <h4 class="statistic__item-title">Top genre</h4>
-      <p class="statistic__item-text">Sci-Fi</p>
+      <p class="statistic__item-text">${statistic.maxGenre}</p>
     </li>
   </ul>
 
@@ -154,30 +156,30 @@ const createStats = (statistic) => {
 };
 
 export default class StatsView extends Smart {
-  constructor(taskModel) {
+  constructor(filmModel) {
     super();
-    this._taskModel = taskModel;
+    this._filmModel = filmModel;
     this._currentFilter = 'all-time';
     this.recalculate();
     this.restoreHandlers();
   }
 
   recalculate() {
-    this._statistic = countStatistic(this._taskModel.getTasks('history')
+    this._statistic = countStatistic(this._filmModel.getTasks('history')
       .filter((film) => {
         return statsData(film.watchHistory.watchDate, new Date(), this._currentFilter);
       }));
   }
 
   getTemplate() {
-    return createStats(this._statistic);
+    return createStats(this._statistic, this._filmModel.getTasks('history').length, this._currentFilter);
   }
 
   restoreHandlers() {
     this.getElement().querySelector('.statistic__filters').addEventListener('change', (evt) => {
       evt.preventDefault();
       this._currentFilter = evt.target.value;
-      this.updateStats();
+      this.show();
     });
   }
 

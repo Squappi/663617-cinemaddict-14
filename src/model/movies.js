@@ -5,24 +5,24 @@ export default class Movies extends Observer {
   constructor() {
     super();
     this._isLoading = true;
-    this._tasks = [];
+    this._films = [];
   }
 
   isLoading() {
     return this._isLoading;
   }
 
-  setTasks(tasks) {
-    this._tasks.push(...tasks);
+  setTasks(films) {
+    this._films.push(...films);
     this._isLoading = false;
-    this._notify('isLoading', tasks);
+    this._notify('isLoading', films);
   }
 
   getTasks(filter) {
     if (!filter || filter === 'AllMovies') {
-      return this._tasks;
+      return this._films;
     } else {
-      return this._tasks.filter((film) => {
+      return this._films.filter((film) => {
         switch (filter) {
           case 'watchlist':
             return film.allMovies.watchList;
@@ -37,16 +37,16 @@ export default class Movies extends Observer {
     }
   }
 
-  updateFilm(film) {
-    const oldFilmIndex = this._tasks.findIndex((task) => {
-      return task.id === film.id;
+  updateFilm(updatedFilm) {
+    const oldFilmIndex = this._films.findIndex((film) => {
+      return film.id === updatedFilm.id;
     });
 
     if (oldFilmIndex >= 0) {
-      const copyFilms = this._tasks.slice();
-      copyFilms[oldFilmIndex] = film;
-      this._tasks = copyFilms;
-      this._notify('updateTasks', this._tasks);
+      const copyFilms = this._films.slice();
+      copyFilms[oldFilmIndex] = updatedFilm;
+      this._films = copyFilms;
+      this._notify('updateTasks', this._films);
     }
   }
 

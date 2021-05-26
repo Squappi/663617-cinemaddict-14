@@ -1,7 +1,7 @@
 import Abstract from './utils-abstract.js';
 
-const createNumberOfFilms = (task) => {
-  return `<p>${task} movies inside</p>`;
+const createNumberOfFilms = (film) => {
+  return `<p>${film} movies inside</p>`;
 };
 
 export default class SiteCreateNumberFilms extends Abstract {

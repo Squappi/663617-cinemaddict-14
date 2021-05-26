@@ -2,9 +2,9 @@ import SiteMenuFilter from '../mock/filter';
 import {renderElement, renderPosition} from '../utils';
 
 export default class FilterPresenter {
-  constructor(tasksModel, renderContainer, filterModel) {
+  constructor(filmsModel, renderContainer, filterModel) {
     this._filterModel = filterModel;
-    this._tasksModel = tasksModel;
+    this._filmsModel = filmsModel;
     this._renderingMarkup = renderContainer;
 
     this._addFilter = this._addFilter.bind(this);
@@ -12,9 +12,9 @@ export default class FilterPresenter {
 
     this._handleTasksChange = this._handleTasksChange.bind(this);
 
-    this._tasksModel.addObserver(this._handleTasksChange);
+    this._filmsModel.addObserver(this._handleTasksChange);
     this.loading = this.loading.bind(this);
-    this._tasksModel.addObserver(this.loading);
+    this._filmsModel.addObserver(this.loading);
   }
 
   loading(evt) {
@@ -32,7 +32,7 @@ export default class FilterPresenter {
 
   init() {
     const oldFilterView = this._renderFilterView;
-    this._renderFilterView = new SiteMenuFilter(this._tasksModel.getTasks(), this._filterModel.getFilter());
+    this._renderFilterView = new SiteMenuFilter(this._filmsModel.getTasks(), this._filterModel.getFilter());
 
     if (oldFilterView) {
       const parentElement = oldFilterView.getElement().parentElement;

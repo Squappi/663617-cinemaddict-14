@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { formatDuration } from '../mock/const.js';
 import Abstract from './utils-abstract.js';
 
-const createContentList = (task) => {
+const createContentList = (film) => {
   const {
     poster, nameFilm, rating, year, duration, genre, description, comments,
     allMovies: {
@@ -10,7 +10,7 @@ const createContentList = (task) => {
       history: history,
       favorites: favorites,
     },
-  } = task;
+  } = film;
   let descriptionStr = description;
 
   if (descriptionStr.length > 140) {
@@ -37,9 +37,9 @@ const createContentList = (task) => {
 };
 
 export default class SiteCreateView extends Abstract {
-  constructor(task) {
+  constructor(film) {
     super();
-    this._content = task;
+    this._content = film;
 
     this._editHandlerForm = this._editHandlerForm.bind(this);
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
