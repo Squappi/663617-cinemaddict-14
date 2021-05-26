@@ -13,6 +13,7 @@ const siteMainElement = document.querySelector('.main');
 const siteHeaderElement = document.querySelector('.header');
 const siteFooterElement = document.querySelector('.footer__statistics');
 
+
 const filmModel = new Movies();
 const filterModel = new FilterModel();
 const stats = new StatsView(filmModel);
@@ -20,6 +21,7 @@ const stats = new StatsView(filmModel);
 
 const filterRender = new FilterPresenter(filmModel, siteMainElement, filterModel);
 const renderSiteElement = new GenerateSite(siteMainElement, siteHeaderElement,siteFooterElement, filmModel, filterModel,stats,api);
+
 
 filterRender.init();
 renderSiteElement.init();

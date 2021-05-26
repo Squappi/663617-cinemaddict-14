@@ -129,6 +129,7 @@ const createStats = (statistic, filmCount, currentFilter) => {
     <label for="statistic-month" class="statistic__filters-label">Month</label>
 
     <input type="radio" class="statistic__filters-input visually-hidden " name="statistic-filter" id="statistic-year" value="year" ${(currentFilter === 'year') ? 'checked' : ''}>
+
     <label for="statistic-year" class="statistic__filters-label">Year</label>
   </form>
 
