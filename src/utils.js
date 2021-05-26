@@ -62,10 +62,25 @@ export const sortFilmsRating = (fimlA, filmB) => {
     return 0;
   }
 
-  if (fimlA.rating > filmB.rating) {
+  if (fimlA.rating < filmB.rating) {
     return 1;
   }
 
   return -1;
+};
+
+export const statsData = (watchDate, currentDate, period) => {
+  switch (period) {
+    case 'today':
+      return dayjs.duration(dayjs(currentDate) - dayjs(watchDate), 'milliseconds').asDays() <= 1;
+    case 'week':
+      return dayjs.duration(dayjs(currentDate) - dayjs(watchDate), 'milliseconds').asWeeks() <= 1;
+    case 'month':
+      return dayjs.duration(dayjs(currentDate) - dayjs(watchDate), 'milliseconds').asMonths() <= 1;
+    case 'year':
+      return dayjs.duration(dayjs(currentDate) - dayjs(watchDate), 'milliseconds').asYears() <= 1;
+    default :
+      return true;
+  }
 };
 

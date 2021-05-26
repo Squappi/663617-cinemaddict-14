@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
-import { formatDuration } from '../mock/const.js';
+import {formatDuration} from '../mock/const.js';
 import Smart from '../presenter/smart.js';
-import CommentsView from './comments.js';
+import he from 'he';
 
 const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
 
-const createPopup = (film, state = {}) => {
+const createPopup = (film, state = {}, comment) => {
   const {
     ageRestriction,
     director,
@@ -24,9 +24,6 @@ const createPopup = (film, state = {}) => {
     },
   } = film;
 
-  const commentsList = film.comment.map((comment) => {
-    return new CommentsView(comment).getTemplate();
-  }).join(' ');
 
   const getGenre = (genre) => `<span className="film-details__genre">${genre}</span>`;
 
@@ -40,7 +37,7 @@ const createPopup = (film, state = {}) => {
         <div class="film-details__poster">
           <img class="film-details__poster-img" src="./images/posters/the-great-flamarion.jpg" alt="">
 
-          <p class="film-details__age">${ageRestriction}</p>
+          <p class="film-details__age">+${ageRestriction}</p>
         </div>
 
         <div class="film-details__info">
@@ -81,7 +78,7 @@ const createPopup = (film, state = {}) => {
               <td class="film-details__cell">${country}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">Genres</td>
+              <td class="film-details__term">${genre.length > 1 ? 'Genres' : 'Genre'}</td>
               <td class="film-details__cell">
               ${genre.slice(0, 3).map(getGenre).join(' ')}
             </tr>
@@ -107,22 +104,37 @@ const createPopup = (film, state = {}) => {
 
     <div class="film-details__bottom-container">
       <section class="film-details__comments-wrap">
-        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">0</span></h3>
+        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comment.length}</span></h3>
 
-        <ul class="film-details__comments-list">${commentsList}</ul>
+        <ul class="film-details__comments-list">
+        ${comment.map(({emotion, comment, author, data, id}) => `
+          <li class="film-details__comment">
+          <span class="film-details__comment-emoji">
+            <img src="./images/emoji/${emotion ? emotion + '.png' : 'smile.png'}" width="55" height="55" alt="emoji-smile">
+          </span>
+          <div>
+            <p class="film-details__comment-text">${comment}</p>
+            <p class="film-details__comment-info">
+              <span class="film-details__comment-author">${author}</span>
+              <span class="film-details__comment-day">${dayjs(data).format('YYYY/MM/DD HH:MM')}</span>
+              <button class="film-details__comment-delete" data-id = ${id} >Delete</button>
+            </p>
+          </div>
+        </li>`).join('')}
+      </ul>
 
         <div class="film-details__new-comment">
           <div class="film-details__add-emoji-label">${state.emoji ? `<img src="images/emoji/${state.emoji}.png" width="55" height="55" alt="emoji-smile">` : ''}</div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${state.text || ''}</textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${he.encode(state.text || '')}</textarea>
           </label>
 
           <div class="film-details__emoji-list">
             ${EMOJIES.map((emoji) => `
-            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji}" value="${emoji}"${emoji === state.emoji ? ' checked' : ''}>
-            <label class="film-details__emoji-label" for="emoji-${emoji}">
-              <img src="./images/emoji/${emoji}.png" width="30" height="30" alt="emoji">
+            <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji ? emoji : 'smile'}" value="${emoji ? emoji : 'smile'}"${emoji === state.emoji ? ' checked' : ''}>
+            <label class="film-details__emoji-label" for="emoji-${emoji ? emoji : 'smile'}">
+              <img src="./images/emoji/${emoji ? emoji : 'smile'}.png" width="30" height="30" alt="emoji">
             </label>
             `).join('')}
           </div>
@@ -134,26 +146,45 @@ const createPopup = (film, state = {}) => {
 };
 
 export default class SiteCreatePopup extends Smart {
-  constructor(film) {
+  constructor(film, api) {
     super();
     this._film = film;
     this._state = {};
+    this._api = api;
+    this._isLoading = false;
+    this._comments = [];
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
     this._addToHistoryHandler = this._addToHistoryHandler.bind(this);
     this._addToFavoritesHandler = this._addToFavoritesHandler.bind(this);
+    this._setDeleteHandler = this._setDeleteHandler.bind(this);
+    this._addComment = this._addComment.bind(this);
+    this.addComment = this.addComment.bind(this);
+    this.errorComment = this.errorComment.bind(this);
 
     this.restoreHandlers();
   }
 
   getTemplate() {
-    return createPopup(this._film, this._state);
+    return createPopup(this._film, this._state, this._comments || []);
+  }
+
+  setComments(comments) {
+    this._comments = comments;
+    this.updateElement();
+  }
+
+  clearTextArea() {
+    this._state.text = '';
+    this._state.emoji = '';
+    this.updateElement();
   }
 
   _closeClickHandler(evt) {
     evt.preventDefault();
     this._callback.closeClick();
+    evt.target.removeEventListener('click', this._closeClickHandler);
   }
 
   setCloseHandler(callback) {
@@ -200,13 +231,39 @@ export default class SiteCreatePopup extends Smart {
     this._addEmojiListener();
     this._addTextAreaListener();
 
-    if(this._callback.closeClick) {
+    if (this._callback.closeClick) {
       this.setCloseHandler(this._callback.closeClick);
+    }
+    if (this._callback.addToWatchList) {
+      this.setAddToWatchListHandler(this._callback.addToWatchList);
+    }
+    if (this._callback.deleteComment) {
+      this.setDeleteHandler(this._callback.deleteComment);
+    }
+    if (this._callback.addToHistory) {
+      this.setAddToHistoryHandler(this._callback.addToHistory);
+    }
+    if (this._callback.addToFavorite) {
+      this.setAddFavoritesHandler(this._callback.addToFavorite);
+    }
+    if (this._callback.addComment) {
+      this._addComment(this._callback.addComment);
     }
   }
 
   _addTextAreaListener() {
-    this.getElement().querySelector('.film-details__comment-input').addEventListener('change', (evt) => {
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('keydown', (evt) => {
+      if((evt.metaKey || evt.ctrlKey) && evt.keyCode == 13) {
+        if(evt.target.value !== '' || !this._state.emoji) {
+          evt.target.disabled = true;
+          this.getElement().querySelectorAll('input.film-details__emoji-item').forEach((element) => {
+            element.disabled = true;
+          });
+          this.addComment();
+        }
+      }
+    });
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('input', (evt) => {
       this._state.text = evt.target.value;
     });
   }
@@ -218,5 +275,47 @@ export default class SiteCreatePopup extends Smart {
         this.updateElement();
       });
     });
+  }
+
+  _addComment(callback) {
+    this._callback.addComment = callback;
+  }
+
+  addComment() {
+    this._callback.addComment(this._film, this._state);
+  }
+
+  _setDeleteHandler(evt) {
+    evt.preventDefault();
+    evt.target.innerHTML = 'Deleting';
+    evt.target.disabled = true;
+    const comment = this._comments.filter((com) => {
+      return com.id == evt.target.dataset.id;
+    })[0];
+    this._callback.deleteComment(comment.id)
+      .catch(() => {
+        evt.target.innerHTML = 'Delete';
+        evt.target.disabled = false;
+      });
+  }
+
+  setDeleteHandler(callback) {
+    this._callback.deleteComment = callback;
+    if (this.getElement().querySelector('.film-details__comment-delete')) {
+      this.getElement().querySelectorAll('.film-details__comment-delete').forEach((elem) =>
+        elem.addEventListener('click', this._setDeleteHandler));
+    }
+  }
+
+  errorComment() {
+    this.getElement().querySelector('.film-details__comment-input').disabled = false;
+    this.getElement().querySelectorAll('input.film-details__emoji-item').forEach((element) => {
+      element.disabled = false;
+    });
+    this.getElement().querySelector('.film-details__new-comment').classList.add('shake');
+    const timeout = setTimeout(() => {
+      this.getElement().querySelector('.film-details__new-comment').classList.remove('shake');
+      clearTimeout(timeout);
+    }, 1000);
   }
 }

@@ -3,7 +3,7 @@ import Abstract from './utils-abstract.js';
 
 const createSortList = () => {
   return `<ul class="sort">
-  <li><a href="#" class="sort__button" data-sort-type="${SortType.DEFAULT}">Sort by default</a></li>
+  <li><a href="#" class="sort__button sort__button--active" data-sort-type="${SortType.DEFAULT}">Sort by default</a></li>
   <li><a href="#" class="sort__button" data-sort-type="${SortType.DATE}">Sort by date</a></li>
   <li><a href="#" class="sort__button" data-sort-type="${SortType.RATING}">Sort by rating</a></li>
 </ul>`;
@@ -36,6 +36,13 @@ export default class SiteMenuSort extends Abstract{
       button.classList.remove('sort__button--active');
     });
     evt.target.classList.add('sort__button--active');
+  }
+
+  clear() {
+    this.getElement().querySelectorAll('.sort__button').forEach((button) => {
+      button.classList.remove('sort__button--active');
+    });
+    this.getElement().querySelectorAll('.sort__button')[0].classList.add('sort__button--active');
   }
 
   sortTypeChangeHandler(callback) {

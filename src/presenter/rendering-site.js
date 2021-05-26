@@ -3,27 +3,31 @@ import SiteButton from '../view/button.js';
 import SiteMenuUser from '../view/user.js';
 import SiteCreateNumberFilms from '../view/number-of-films.js';
 import SiteCreateCards from '../view/cards-container.js';
-import SiteMenuFilter from '../mock/filter.js';
 import EmptyMessage from '../view/empty.js';
 
 import popupPresenter from './popup-task.js';
 import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
-import { SortType } from '../mock/const.js';
+import {SortType} from '../mock/const.js';
+import LoadingMessage from '../view/loading.js';
 
 const FILMS_COUNT = 5;
 const EXTRA = 2;
 
 export default class GenerateSite {
-  constructor(renderContainer, renderHeader) {
+  constructor(renderContainer, renderHeader, renderFooter, filmsModel, filterModel, stats, api) {
+    this._filterModel = filterModel;
+    this._filmsModel = filmsModel;
+    this._stats = stats;
+    this._api = api;
     this._renderingMarkup = renderContainer;
     this._renderingHeader = renderHeader;
+    this._renderFooter = renderFooter;
     this._renderFilmsCount = FILMS_COUNT;
 
     this._renderingSortMenu = new SiteMenuSort();
-    this._currentSortType = SortType.DEFAULT;
 
     this._renderButton = new SiteButton();
-    this._renderUserView = new SiteMenuUser();
+    this._renderUserView = new SiteMenuUser(this._filmsModel.getTasks(this._filterModel.getFilter()));
     this._renderContainerCards = new SiteCreateCards();
     this._renderEmptyMessage = new EmptyMessage();
     this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
@@ -35,48 +39,99 @@ export default class GenerateSite {
     this._mapTopComment = new Map();
 
     this._sortByData = this._sortByData.bind(this);
+    this._handleChangeFilter = this._handleChangeFilter.bind(this);
+
+    this._filterModel.addObserver(this._handleChangeFilter);
+    this._showHideStats = this._showHideStats.bind(this);
+    this._filterModel.addObserver(this._showHideStats);
+    this.loading = this.loading.bind(this);
+    this._filmsModel.addObserver(this.loading);
   }
 
-  init(films) {
-    this._renderSite = films.slice();
-    this._sourcedFilms = films.slice();
-    this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
-    this._renderFilterView = new SiteMenuFilter(this._renderSite);
-
-    this._renderFitter();
-    this._renderSort();
-    this._renderUser();
-
-    // render ContainerCards
-
-    renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
-    this._filmsList = this._renderingMarkup.querySelector('.films-list');
-    this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
-
-    // render Cards
-
-    this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
-
-    [this._topRateOne, this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
-
-    if (this._renderSite.length >= 2) {
-      for (let i = 0; i < EXTRA; i++) {
-        this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND));
-      }
-
-
-      for (let i = 0; i < EXTRA; i++) {
-        this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND));
-      }
+  loading(evt) {
+    if (evt !== 'isLoading') {
+      return ;
     }
+    this.renderCards();
+  }
+
+  _handleChangeFilter(_event, filter) {
+    if (_event !== 'changeFilter' && _event !== 'addToList') {
+      return;
+    }
+    if (_event === 'changeFilter') {
+      this._mapMain.clear();
+      this._renderFilmsCount = FILMS_COUNT;
+      this._renderSite = this._filmsModel.getTasks(filter).slice();
+      this._sourcedFilms = this._filmsModel.getTasks(filter).slice();
+    }
+    this._renderFilmsList.innerHTML = '';
+
+    this._renderContainerTasks(0, Math.min(this._renderSite.length, this._renderFilmsCount));
 
     this._renderLoadMoreButton();
+    this._renderingSortMenu.clear();
+  }
 
+  init() {
+    this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+    this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+
+    if (this._filmsModel.isLoading()) {
+      renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
+      this._filmsList = this._renderingMarkup.querySelector('.films-list');
+      this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
+      renderElement(this._renderFilmsList,new LoadingMessage().getElement(), renderPosition.BEFOREEND);
+    } else {
+      this.renderCards();
+    }
+  }
+
+  renderCards() {
+    this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+    this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+    this._renderFilmsList.innerHTML = '';
+    this._renderSort();
+    this._renderUser();
+    this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
+
+    // render Cards
     if (this._renderSite.length === 0) {
       this._renderMessage();
+    } else {
+      renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
+      this._filmsList = this._renderingMarkup.querySelector('.films-list');
+      this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
+      this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
+
+      [this._topRateOne, this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
+
+      if (this._renderSite.length >= 2) {
+        for (let i = 0; i < EXTRA; i++) {
+          this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND));
+        }
+
+        for (let i = 0; i < EXTRA; i++) {
+          this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND));
+        }
+      }
+      this._renderLoadMoreButton();
     }
+    renderElement(this._renderingMarkup, this._stats.getElement(), renderPosition.BEFOREEND);
 
     this._renderNumderFilm();
+
+  }
+
+  _showHideStats(evt) {
+    if (evt !== 'showStats' && evt !== 'showFilms') {
+      return;
+    }
+    if (evt === 'showStats') {
+      this._showStats();
+    } else {
+      this._showFims();
+    }
   }
 
   _changeMode() {
@@ -86,40 +141,34 @@ export default class GenerateSite {
     //обход всех остальных popup presenters и вызов resetView
   }
 
-  _updateItemInList(list, item) {
-    const resultList = list.slice();
-    const index = resultList.findIndex((i) => i.id = item.id);
-    if (index >= 0) {
-      resultList[index] = item;
-    }
-    return resultList;
-  }
+  _changeData(film) {
+    //+update film in this._renderSite
 
-  _changeData(task) {
-    //+update task in this._renderSite
-    this._renderSite = this._updateItemInList(this._renderSite, task);
-    this._sourcedFilms = this._updateItemInList(this._sourcedFilms, task);
+    this._api.updateMovie(film)
+      .then(() => {
+        this._filmsModel.updateFilm(film);
 
-    if (this._mapMain.has(task.id)) {
-      this._mapMain.get(task.id).init(task);
-    }
+        this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+        this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+        this._handleChangeFilter('addToList', this._filterModel.getFilter());
 
-    if (this._mapTopComment.has(task.id)) {
-      this._mapTopComment.get(task.id).init(task);
-    }
+        if (this._mapMain.has(film.id)) {
+          this._mapMain.get(film.id).init(film);
+        }
 
-    if (this._mapTopRate.has(task.id)) {
-      this._mapTopRate.get(task.id).init(task);
-    }
-  }
+        if (this._mapTopComment.has(film.id)) {
+          this._mapTopComment.get(film.id).init(film);
+        }
 
-  _renderFitter() {
-    renderElement(this._renderingMarkup, this._renderFilterView.getElement(), renderPosition.BEFOREEND);
+        if (this._mapTopRate.has(film.id)) {
+          this._mapTopRate.get(film.id).init(film);
+        }
+      });
   }
 
   _sortByData(sortType) {
     this._renderSite = this._sourcedFilms.slice();
-    switch(sortType) {
+    switch (sortType) {
       case SortType.DATE:
         this._renderSite.sort(sortFilmsDate);
         break;
@@ -135,13 +184,6 @@ export default class GenerateSite {
     this._mapMain.clear();
     this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
   }
-
-  // _handleSortButtonClick(sortType) {
-  //   if(this._currentSortType === sortType) {
-  //     return;
-  //   }
-  //   this._sortByData(sortType);
-  // }
 
   _renderSort() {
     renderElement(this._renderingMarkup, this._renderingSortMenu.getElement(), renderPosition.BEFOREEND);
@@ -172,23 +214,36 @@ export default class GenerateSite {
   }
 
   _renderLoadMoreButton() {
-    renderElement(this._filmsList, this._renderButton.getElement(), renderPosition.BEFOREEND);
-
-    this._renderButton.setClickHandler(this._handleLoadMoreButtonClick);
+    if (this._renderFilmsCount < this._sourcedFilms.length) {
+      renderElement(this._filmsList, this._renderButton.getElement(), renderPosition.BEFOREEND);
+      this._renderButton.setClickHandler(this._handleLoadMoreButtonClick);
+    } else {
+      remove(this._renderButton);
+    }
   }
 
-  _renderComponent(positionElementMenu, taskForRender) {
-    const popupTaskPresenter = new popupPresenter(positionElementMenu, this._changeData, this._changeMode);
-    popupTaskPresenter.init(taskForRender);
-    popupTaskPresenter[taskForRender.id] = popupTaskPresenter;
+  _renderComponent(positionElementMenu, filmForRender) {
+    const popupTaskPresenter = new popupPresenter(positionElementMenu, this._changeData, this._changeMode, this._api);
+    popupTaskPresenter.init(filmForRender);
+    popupTaskPresenter[filmForRender.id] = popupTaskPresenter;
     return popupTaskPresenter;
   }
 
   _renderNumderFilm() {
-    renderElement(this._renderingMarkup, this._renderNumderFilms.getElement(), renderPosition.BEFOREEND);
+    renderElement(this._renderFooter, this._renderNumderFilms.getElement(), renderPosition.BEFOREEND);
   }
 
   _renderMessage() {
     renderElement(this._renderingMarkup, this._renderEmptyMessage.getElement(), renderPosition.BEFOREEND);
+  }
+
+  _showStats() {
+    this._stats.show();
+    this._renderContainerCards.hide();
+  }
+
+  _showFims() {
+    this._stats.hide();
+    this._renderContainerCards.show();
   }
 }

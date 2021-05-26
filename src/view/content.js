@@ -2,19 +2,19 @@ import dayjs from 'dayjs';
 import { formatDuration } from '../mock/const.js';
 import Abstract from './utils-abstract.js';
 
-const createContentList = (task) => {
+const createContentList = (film) => {
   const {
-    poster, nameFilm, rating, year, duration, genre, description, comment,
+    poster, nameFilm, rating, year, duration, genre, description, comments,
     allMovies: {
       watchList: watchList,
       history: history,
       favorites: favorites,
     },
-  } = task;
+  } = film;
   let descriptionStr = description;
 
   if (descriptionStr.length > 140) {
-    descriptionStr = descriptionStr.substring(0, 140).concat('...');
+    descriptionStr = descriptionStr.substring(0, 139).concat('...');
   }
 
   return `<article class="film-card">
@@ -27,7 +27,7 @@ const createContentList = (task) => {
     </p>
     <img src="${poster}" alt="" class="film-card__poster">
     <p class="film-card__description">${descriptionStr}</p>
-    <a class="film-card__comments">${comment.length} comments</a>
+    <a class="film-card__comments">${comments.length} comments</a>
     <div class="film-card__controls">
       <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist${watchList ? ' film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
       <button class="film-card__controls-item button film-card__controls-item--mark-as-watched${history ? ' film-card__controls-item--active' : ''}" type="button">Mark as watched</button>
@@ -37,9 +37,9 @@ const createContentList = (task) => {
 };
 
 export default class SiteCreateView extends Abstract {
-  constructor(task) {
+  constructor(film) {
     super();
-    this._content = task;
+    this._content = film;
 
     this._editHandlerForm = this._editHandlerForm.bind(this);
     this._addToWatchListHandler = this._addToWatchListHandler.bind(this);
