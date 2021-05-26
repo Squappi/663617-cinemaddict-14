@@ -32,7 +32,7 @@ export default class FilterPresenter {
 
   init() {
     const oldFilterView = this._renderFilterView;
-    this._renderFilterView = new SiteMenuFilter(this._tasksModel.getTasks());
+    this._renderFilterView = new SiteMenuFilter(this._tasksModel.getTasks(), this._filterModel.getFilter());
 
     if (oldFilterView) {
       const parentElement = oldFilterView.getElement().parentElement;

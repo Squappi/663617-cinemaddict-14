@@ -7,25 +7,27 @@ const filmToFilterMap = {
   favorites: (films) => films.filter((film) => film.allMovies.favorites).length,
 };
 
-const getFilter = (films) => {
+const getFilter = (films, activeFilter) => {
   return Object.entries(filmToFilterMap).map(([filterName, countFilms]) => {
     return {
       name: filterName,
       count: countFilms(films),
+      active: filterName === activeFilter,
     };
   });
 };
 
 export default class SiteMenuFilter extends Abstract{
-  constructor(filters) {
+  constructor(films, filter = 'AllMovies') {
     super();
-    this._filter = filters;
+    this._films = films;
+    this._filter = filter;
 
     this._getFilterWatchlistHandler = this._getFilterWatchlistHandler.bind(this);
     this._setStatsHandler = this._setStatsHandler.bind(this);
   }
   getTemplate() {
-    return createFilterTemplete(getFilter(this._filter));
+    return createFilterTemplete(getFilter(this._films, this._filter), this._filter === 'AllMovies');
   }
 
   _getFilterWatchlistHandler(evt) {

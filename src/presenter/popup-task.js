@@ -91,7 +91,7 @@ export default class popupPresenter {
       },
     );
     return this._api.deleteComment(deleteComment).then(() => {
-      this._changeData(task);
+      this.init(task);
     });
   }
 
