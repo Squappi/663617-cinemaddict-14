@@ -1,4 +1,4 @@
-import Abstract from './utils-abstract';
+import Abstract from './abstract';
 
 
 const createLoading = () => {

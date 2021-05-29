@@ -1,6 +1,9 @@
 import dayjs from 'dayjs';
 import { formatDuration } from '../mock/const.js';
-import Abstract from './utils-abstract.js';
+import Abstract from './abstract.js';
+
+const DESCRIPTION = 140;
+const SHORT_DESCRIPTION = 139;
 
 const createContentList = (film) => {
   const {
@@ -13,8 +16,8 @@ const createContentList = (film) => {
   } = film;
   let descriptionStr = description;
 
-  if (descriptionStr.length > 140) {
-    descriptionStr = descriptionStr.substring(0, 139).concat('...');
+  if (descriptionStr.length > DESCRIPTION) {
+    descriptionStr = descriptionStr.substring(0, SHORT_DESCRIPTION).concat('...');
   }
 
   return `<article class="film-card">

@@ -4,7 +4,7 @@ const createSiteMenu = (filter) => {
   return `<a href="#${name}" data-filter-type = "${name}" class="main-navigation__item${active ? ' main-navigation__item--active' : ''}">${name} <span class="main-navigation__item-count">${count}</span></a>`;
 };
 
-export const createFilterTemplete = (filterItems, active) => {
+export const createFilterTemplate = (filterItems, active) => {
   const filtersItemTemplate = filterItems
     .map((filter, index) => createSiteMenu(filter, index === 0)).join('');
 

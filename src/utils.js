@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import Abstract from './view/utils-abstract';
+import Abstract from './view/abstract';
 
 export const renderPosition = {
   AFTERBEGIN: 'afterbegin',

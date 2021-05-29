@@ -1,15 +1,15 @@
-import Abstract from './utils-abstract.js';
+import Abstract from './abstract.js';
 
 const createNumberOfFilms = (film) => {
   return `<p>${film} movies inside</p>`;
 };
 
 export default class SiteCreateNumberFilms extends Abstract {
-  constructor(arr) {
+  constructor(films) {
     super();
-    this.newArr = arr;
+    this._films = films;
   }
   getTemplate() {
-    return createNumberOfFilms(this.newArr.length);
+    return createNumberOfFilms(this._films.length);
   }
 }

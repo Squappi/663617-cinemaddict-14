@@ -1,4 +1,4 @@
-import Abstract from '../view/utils-abstract';
+import Abstract from '../view/abstract';
 
 export default class Smart extends Abstract {
   constructor() {
@@ -29,7 +29,9 @@ export default class Smart extends Abstract {
     this.removeElement();
 
     const newElement = this.getElement();
-    parent.replaceChild(newElement, prevElement);
+    if(parent) {
+      parent.replaceChild(newElement, prevElement);
+    }
     newElement.scrollTop = oldScrollTop;
 
     this.restoreHandlers();

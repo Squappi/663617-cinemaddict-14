@@ -1,5 +1,11 @@
 
-import Abstract from './utils-abstract.js';
+import Abstract from './abstract.js';
+
+const MIN_NOVICE = 1;
+const MAX_NOVICE = 10;
+const MIN_FAN = 11;
+const MOVIE_BUFF = 20;
+
 
 const createUserList = (filmsCount) => {
   let rang = '';
@@ -20,9 +26,16 @@ export default class SiteMenuUser extends Abstract {
   constructor(films) {
     super();
     this._films = films;
+    this.updateFilms = this.updateFilms.bind(this);
   }
 
   getTemplate() {
-    return createUserList(this._films.length);
+    return createUserList(this._films.filter((film) => {
+      return film.allMovies.history;
+    }).length);
+  }
+
+  updateFilms(films) {
+    this._films = films;
   }
 }

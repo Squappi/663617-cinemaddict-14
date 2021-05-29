@@ -1,10 +1,10 @@
-import Abstract from './utils-abstract';
+import Abstract from './abstract';
 
 const createButtonList = () => {
   return '<button class="films-list__show-more">Show more</button>';
 };
 
-export default class SiteMenuSort extends Abstract{
+export default class SiteButton extends Abstract{
   constructor() {
     super();
     this._element = null;

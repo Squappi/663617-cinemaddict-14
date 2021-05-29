@@ -1,5 +1,5 @@
-import SiteCreateView from '../view/content.js';
-import SiteCreatePopup from '../view/popup.js';
+import SiteCreateView from '../view/site-create-view.js';
+import SiteCreatePopup from '../view/site-create-popup.js';
 import {renderElement} from '../utils.js';
 
 const Mode = {
@@ -7,7 +7,7 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
-export default class popupPresenter {
+export default class PopupPresenter {
   constructor(filmList, changeData, changeMode, api) {
     this._filmList = filmList;
     this._changeData = changeData;
@@ -55,6 +55,10 @@ export default class popupPresenter {
           this._film.allMovies,
           {
             history: !this._film.allMovies.history,
+            watchHistory: {
+              isWatch: !this._film.allMovies.history,
+              watchDate: (this._film.allMovies.history) ? null : new Date(),
+            },
           },
         ),
       },

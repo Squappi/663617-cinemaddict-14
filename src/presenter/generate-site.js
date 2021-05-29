@@ -1,14 +1,14 @@
-import SiteMenuSort from '../view/sort.js';
-import SiteButton from '../view/button.js';
-import SiteMenuUser from '../view/user.js';
-import SiteCreateNumberFilms from '../view/number-of-films.js';
-import SiteCreateCards from '../view/cards-container.js';
-import EmptyMessage from '../view/empty.js';
+import SiteMenuSort from '../view/site-menu-sort.js';
+import SiteButton from '../view/site-button.js';
+import SiteMenuUser from '../view/site-menu-user.js';
+import SiteCreateNumberFilms from '../view/site-create-number-films.js';
+import SiteCreateContainer from '../view/site-create-container.js';
+import EmptyMessage from '../view/empty-message.js';
 
-import popupPresenter from './popup-task.js';
+import PopupPresenter from './popup-presenter.js';
 import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
 import {SortType} from '../mock/const.js';
-import LoadingMessage from '../view/loading.js';
+import LoadingMessage from '../view/loading-message.js';
 
 const FILMS_COUNT = 5;
 const EXTRA = 2;
@@ -28,7 +28,7 @@ export default class GenerateSite {
 
     this._renderButton = new SiteButton();
     this._renderUserView = new SiteMenuUser(this._filmsModel.getTasks(this._filterModel.getFilter()));
-    this._renderContainerCards = new SiteCreateCards();
+    this._renderContainerCards = new SiteCreateContainer();
     this._renderEmptyMessage = new EmptyMessage();
     this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
     this._changeData = this._changeData.bind(this);
@@ -70,7 +70,12 @@ export default class GenerateSite {
     this._renderContainerTasks(0, Math.min(this._renderSite.length, this._renderFilmsCount));
 
     this._renderLoadMoreButton();
-    this._renderingSortMenu.clear();
+    if (this._renderSite.length === 0) {
+      this._renderingSortMenu.getElement().remove();
+    } else {
+      this._renderSort();
+      this._renderingSortMenu.clear();
+    }
   }
 
   init() {
@@ -91,7 +96,6 @@ export default class GenerateSite {
     this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
     this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
     this._renderFilmsList.innerHTML = '';
-    this._renderSort();
     this._renderUser();
     this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
 
@@ -100,6 +104,8 @@ export default class GenerateSite {
       this._renderMessage();
     } else {
       renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
+      this._filmSection = this._renderingMarkup.querySelector('.films');
+      this._renderSort();
       this._filmsList = this._renderingMarkup.querySelector('.films-list');
       this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
       this._renderContainerTasks(0, Math.min(this._renderSite.length, FILMS_COUNT));
@@ -119,7 +125,7 @@ export default class GenerateSite {
     }
     renderElement(this._renderingMarkup, this._stats.getElement(), renderPosition.BEFOREEND);
 
-    this._renderNumderFilm();
+    this._renderNumberFilm();
 
   }
 
@@ -130,7 +136,7 @@ export default class GenerateSite {
     if (evt === 'showStats') {
       this._showStats();
     } else {
-      this._showFims();
+      this._showFilms();
     }
   }
 
@@ -150,6 +156,7 @@ export default class GenerateSite {
 
         this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
         this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
+        this._renderUser();
         this._handleChangeFilter('addToList', this._filterModel.getFilter());
 
         if (this._mapMain.has(film.id)) {
@@ -186,22 +193,28 @@ export default class GenerateSite {
   }
 
   _renderSort() {
-    renderElement(this._renderingMarkup, this._renderingSortMenu.getElement(), renderPosition.BEFOREEND);
+    renderElement(this._filmSection, this._renderingSortMenu.getElement(), renderPosition.AFTERBEGIN);
     this._renderingSortMenu.sortTypeChangeHandler(this._sortByData);
   }
 
   _renderUser() {
+    this._renderUserView.getElement().remove();
+    this._renderUserView.updateFilms(this._filmsModel.getTasks(this._filterModel.getFilter()));
     renderElement(this._renderingHeader, this._renderUserView.getElement(), renderPosition.BEFOREEND);
   }
 
   // BUTTON RENDERING
 
   _renderContainerTasks(from, to) {
-    this._renderSite
-      .slice(from, to)
-      .forEach((film) => {
-        this._mapMain.set(film.id, this._renderComponent(this._renderFilmsList, film, renderPosition.BEFOREEND));
-      });
+    if (this._renderSite.length === 0) {
+      this._renderMessage();
+    } else {
+      this._renderSite
+        .slice(from, to)
+        .forEach((film) => {
+          this._mapMain.set(film.id, this._renderComponent(this._renderFilmsList, film, renderPosition.BEFOREEND));
+        });
+    }
   }
 
   _handleLoadMoreButtonClick() {
@@ -223,18 +236,18 @@ export default class GenerateSite {
   }
 
   _renderComponent(positionElementMenu, filmForRender) {
-    const popupTaskPresenter = new popupPresenter(positionElementMenu, this._changeData, this._changeMode, this._api);
+    const popupTaskPresenter = new PopupPresenter(positionElementMenu, this._changeData, this._changeMode, this._api);
     popupTaskPresenter.init(filmForRender);
     popupTaskPresenter[filmForRender.id] = popupTaskPresenter;
     return popupTaskPresenter;
   }
 
-  _renderNumderFilm() {
+  _renderNumberFilm() {
     renderElement(this._renderFooter, this._renderNumderFilms.getElement(), renderPosition.BEFOREEND);
   }
 
   _renderMessage() {
-    renderElement(this._renderingMarkup, this._renderEmptyMessage.getElement(), renderPosition.BEFOREEND);
+    renderElement(this._renderFilmsList, this._renderEmptyMessage.getElement(), renderPosition.AFTERBEGIN);
   }
 
   _showStats() {
@@ -242,7 +255,7 @@ export default class GenerateSite {
     this._renderContainerCards.hide();
   }
 
-  _showFims() {
+  _showFilms() {
     this._stats.hide();
     this._renderContainerCards.show();
   }

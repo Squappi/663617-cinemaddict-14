@@ -1,4 +1,4 @@
-import Abstract from './utils-abstract.js';
+import Abstract from './abstract.js';
 
 const createContainerCards = () => {
   return `<section class="films">
@@ -25,7 +25,7 @@ const createContainerCards = () => {
 </section>`;
 };
 
-export default class SiteCreateCards extends Abstract{
+export default class SiteCreateContainer extends Abstract{
   getTemplate() {
     return createContainerCards();
   }

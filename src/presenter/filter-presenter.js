@@ -1,4 +1,4 @@
-import SiteMenuFilter from '../mock/filter';
+import SiteMenuFilter from '../mock/site-menu-filter.js';
 import {renderElement, renderPosition} from '../utils';
 
 export default class FilterPresenter {

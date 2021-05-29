@@ -4,9 +4,13 @@ import Smart from '../presenter/smart.js';
 import he from 'he';
 
 const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
+const TIME = 1000;
 
 const createPopup = (film, state = {}, comment) => {
   const {
+    nameFilm,
+    originalTitle,
+    poster,
     ageRestriction,
     director,
     writter,
@@ -35,7 +39,7 @@ const createPopup = (film, state = {}, comment) => {
       </div>
       <div class="film-details__info-wrap">
         <div class="film-details__poster">
-          <img class="film-details__poster-img" src="./images/posters/the-great-flamarion.jpg" alt="">
+          <img class="film-details__poster-img" src="${poster}" alt="">
 
           <p class="film-details__age">+${ageRestriction}</p>
         </div>
@@ -43,8 +47,8 @@ const createPopup = (film, state = {}, comment) => {
         <div class="film-details__info">
           <div class="film-details__info-head">
             <div class="film-details__title-wrap">
-              <h3 class="film-details__title">The Great Flamarion</h3>
-              <p class="film-details__title-original">Original: The Great Flamarion</p>
+              <h3 class="film-details__title">${nameFilm}</h3>
+              <p class="film-details__title-original">${originalTitle}</p>
             </div>
 
             <div class="film-details__rating">
@@ -253,8 +257,8 @@ export default class SiteCreatePopup extends Smart {
 
   _addTextAreaListener() {
     this.getElement().querySelector('.film-details__comment-input').addEventListener('keydown', (evt) => {
-      if((evt.metaKey || evt.ctrlKey) && evt.keyCode == 13) {
-        if(evt.target.value !== '' || !this._state.emoji) {
+      if((evt.metaKey || evt.ctrlKey) && evt.keyCode === 13) {
+        if(evt.target.value.replace(/\s/g,'').length !== 0 || !this._state.emoji) {
           evt.target.disabled = true;
           this.getElement().querySelectorAll('input.film-details__emoji-item').forEach((element) => {
             element.disabled = true;
@@ -290,7 +294,7 @@ export default class SiteCreatePopup extends Smart {
     evt.target.innerHTML = 'Deleting';
     evt.target.disabled = true;
     const comment = this._comments.filter((com) => {
-      return com.id == evt.target.dataset.id;
+      return com.id === evt.target.dataset.id;
     })[0];
     this._callback.deleteComment(comment.id)
       .catch(() => {
@@ -316,6 +320,6 @@ export default class SiteCreatePopup extends Smart {
     const timeout = setTimeout(() => {
       this.getElement().querySelector('.film-details__new-comment').classList.remove('shake');
       clearTimeout(timeout);
-    }, 1000);
+    }, TIME);
   }
 }
