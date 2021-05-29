@@ -4,7 +4,7 @@ import Abstract from './abstract.js';
 const MIN_NOVICE = 1;
 const MAX_NOVICE = 10;
 const MIN_FAN = 11;
-const MOVIE_BUFF = 20;
+const MOVIE_BUF = 20;
 
 
 const createUserList = (filmsCount) => {
