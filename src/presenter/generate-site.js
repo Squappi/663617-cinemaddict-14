@@ -7,7 +7,7 @@ import EmptyMessage from '../view/empty-message.js';
 
 import PopupPresenter from './popup-presenter.js';
 import {remove, renderElement, RenderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
-import {SortType} from '../mock/const.js';
+import { SortType, EVENT_TYPE } from '../const.js';
 import LoadingMessage from '../view/loading-message.js';
 
 const FILMS_COUNT = 5;
@@ -49,24 +49,24 @@ export default class GenerateSite {
   }
 
   loading(evt) {
-    if (evt === 'setFilms') {
+    if (evt === EVENT_TYPE.SET_FILMS) {
       this.renderCards();
     }
     this._renderUserView.updateFilms(this._filmsModel.getTasks());
   }
 
   _handleChangeFilter(_event, filter, film) {
-    if (_event !== 'changeFilter' && _event !== 'addToList') {
+    if (_event !== EVENT_TYPE.CHANGE_FILTER && _event !== EVENT_TYPE.ADD_TO_LIST) {
       return;
     }
-    if (_event === 'changeFilter') {
+    if (_event === EVENT_TYPE.CHANGE_FILTER) {
       this._mapMain.clear();
       this._renderFilmsCount = FILMS_COUNT;
       this._renderSite = this._filmsModel.getTasks(filter).slice();
       this._sourcedFilms = this._filmsModel.getTasks(filter).slice();
     }
 
-    if (_event === 'addToList') {
+    if (_event === EVENT_TYPE.ADD_TO_LIST) {
       if (!this._filmsModel.getTasks(filter).find((filterFilm) => filterFilm.id === film.id)) {
         this._mapMain.delete(film.id);
       }
@@ -139,10 +139,10 @@ export default class GenerateSite {
 
   _showHideStats(evt) {
     switch (evt) {
-      case 'showStats':
+      case EVENT_TYPE.SHOW_STATS:
         this._showStats();
         break;
-      case 'showFilms':
+      case EVENT_TYPE.SHOW_FILMS:
         this._showFilms();
         break;
       default:
@@ -166,7 +166,7 @@ export default class GenerateSite {
 
         this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
         this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
-        this._handleChangeFilter('addToList', this._filterModel.getFilter(), responseFilm);
+        this._handleChangeFilter(EVENT_TYPE.ADD_TO_LIST, this._filterModel.getFilter(), responseFilm);
 
         if (this._mapMain.has(responseFilm.id)) {
           this._mapMain.get(responseFilm.id).init(responseFilm);

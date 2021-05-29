@@ -1,5 +1,5 @@
-import { createFilterTemplate } from '../view/site-menu.js';
-import Abstract from '../view/abstract.js';
+import { createFilterTemplate } from './site-menu.js';
+import Abstract from './abstract.js';
 
 const filmToFilterMap = {
   watchlist: (films) => films.filter((film) => film.allMovies.watchList).length,

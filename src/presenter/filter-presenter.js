@@ -1,5 +1,5 @@
-import SiteMenuFilter from '../mock/site-menu-filter.js';
 import {renderElement, RenderPosition} from '../utils';
+import SiteMenuFilter from '../view/site-menu-filter';
 
 export default class FilterPresenter {
   constructor(filmsModel, renderContainer, filterModel) {

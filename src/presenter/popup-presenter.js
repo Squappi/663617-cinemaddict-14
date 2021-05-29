@@ -127,8 +127,7 @@ export default class PopupPresenter {
         .then((responseFilm) => {
           this._popupFilm.clearTextArea();
           this._changeData(responseFilm);
-          //this._loadComments();
-        }).catch((e) => {
+        }).catch(() => {
           this._popupFilm.errorComment();
         });
     });

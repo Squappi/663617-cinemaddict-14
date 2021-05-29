@@ -2,7 +2,7 @@ import Smart from '../presenter/smart';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {getUserRank, statsData} from '../utils';
-import { formatDuration } from '../mock/const';
+import { formatDuration } from '../const';
 
 const countStatistic = (films) => {
   const genre = Array.from(new Set(films.flatMap((film) => film.genre)).values());

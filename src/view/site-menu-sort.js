@@ -1,4 +1,4 @@
-import { SortType } from '../mock/const.js';
+import { SortType } from '../const.js';
 import Abstract from './abstract.js';
 
 const createSortList = () => {

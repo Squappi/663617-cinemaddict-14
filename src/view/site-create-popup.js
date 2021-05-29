@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {formatDuration} from '../mock/const.js';
+import {formatDuration} from '../const.js';
 import Smart from '../presenter/smart.js';
 import he from 'he';
 
