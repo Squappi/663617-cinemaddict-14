@@ -1,32 +1,21 @@
-
-import Abstract from './abstract.js';
-
-const MIN_NOVICE = 1;
-const MAX_NOVICE = 10;
-const MIN_FAN = 11;
-const MOVIE_BUF = 20;
-
+import Smart from '../presenter/smart';
+import {getUserRank} from '../utils';
 
 const createUserList = (filmsCount) => {
-  let rang = '';
-  if(filmsCount >= 1 && filmsCount <= 10) {
-    rang = 'novice';
-  } else if(filmsCount >= 11 && filmsCount <= 20) {
-    rang = 'fan';
-  } else if (filmsCount > 20) {
-    rang = 'movie buff';
-  }
   return `<section class="header__profile profile">
-  <p class="profile__rating">${rang}</p>
+  <p class="profile__rating">${getUserRank(filmsCount)}</p>
   <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
 </section>`;
 };
 
-export default class SiteMenuUser extends Abstract {
+export default class SiteMenuUser extends Smart {
   constructor(films) {
     super();
     this._films = films;
     this.updateFilms = this.updateFilms.bind(this);
+  }
+
+  restoreHandlers() {
   }
 
   getTemplate() {
@@ -37,5 +26,6 @@ export default class SiteMenuUser extends Abstract {
 
   updateFilms(films) {
     this._films = films;
+    this.updateElement();
   }
 }

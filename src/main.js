@@ -25,6 +25,6 @@ filterRender.init();
 renderSiteElement.init();
 
 api.getMovies().then((films) => {
-  filmModel.setTasks(films);
+  filmModel.setFilms(films);
 });
 

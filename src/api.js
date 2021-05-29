@@ -68,7 +68,9 @@ export default class Api {
         emotion: comment.emoji,
       }),
     },
-    ).then(Api.toJSON);
+    )
+      .then(Api.toJSON)
+      .then((response) => Movies.adaptToClient(response.movie));
   }
 
   static checkStatus(response) {

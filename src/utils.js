@@ -1,17 +1,28 @@
 import dayjs from 'dayjs';
 import Abstract from './view/abstract';
 
-export const renderPosition = {
+const MAP_RANK = new Map([
+  [0, ''],
+  [1, 'novice'],
+  [11, 'fan'],
+  [21, 'movie buff'],
+]);
+
+export const getUserRank = (filmCount) => {
+  return Array.from(MAP_RANK.entries()).reverse().find(([count]) => filmCount >= count)[1];
+};
+
+export const RenderPosition = {
   AFTERBEGIN: 'afterbegin',
   BEFOREEND: 'beforeend',
 };
 
-export const renderElement = (container, element, place = renderPosition.BEFOREEND) => {
+export const renderElement = (container, element, place = RenderPosition.BEFOREEND) => {
   switch (place) {
-    case renderPosition.AFTERBEGIN:
+    case RenderPosition.AFTERBEGIN:
       container.prepend(element);
       break;
-    case renderPosition.BEFOREEND:
+    case RenderPosition.BEFOREEND:
       container.append(element);
       break;
   }

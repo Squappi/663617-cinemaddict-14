@@ -6,7 +6,7 @@ import SiteCreateContainer from '../view/site-create-container.js';
 import EmptyMessage from '../view/empty-message.js';
 
 import PopupPresenter from './popup-presenter.js';
-import {remove, renderElement, renderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
+import {remove, renderElement, RenderPosition, sortFilmsDate, sortFilmsRating} from '../utils.js';
 import {SortType} from '../mock/const.js';
 import LoadingMessage from '../view/loading-message.js';
 
@@ -27,7 +27,7 @@ export default class GenerateSite {
     this._renderingSortMenu = new SiteMenuSort();
 
     this._renderButton = new SiteButton();
-    this._renderUserView = new SiteMenuUser(this._filmsModel.getTasks(this._filterModel.getFilter()));
+    this._renderUserView = new SiteMenuUser(this._filmsModel.getTasks());
     this._renderContainerCards = new SiteCreateContainer();
     this._renderEmptyMessage = new EmptyMessage();
     this._handleLoadMoreButtonClick = this._handleLoadMoreButtonClick.bind(this);
@@ -49,13 +49,13 @@ export default class GenerateSite {
   }
 
   loading(evt) {
-    if (evt !== 'isLoading') {
-      return ;
+    if (evt === 'setFilms') {
+      this.renderCards();
     }
-    this.renderCards();
+    this._renderUserView.updateFilms(this._filmsModel.getTasks());
   }
 
-  _handleChangeFilter(_event, filter) {
+  _handleChangeFilter(_event, filter, film) {
     if (_event !== 'changeFilter' && _event !== 'addToList') {
       return;
     }
@@ -65,6 +65,13 @@ export default class GenerateSite {
       this._renderSite = this._filmsModel.getTasks(filter).slice();
       this._sourcedFilms = this._filmsModel.getTasks(filter).slice();
     }
+
+    if (_event === 'addToList') {
+      if (!this._filmsModel.getTasks(filter).find((filterFilm) => filterFilm.id === film.id)) {
+        this._mapMain.delete(film.id);
+      }
+    }
+
     this._renderFilmsList.innerHTML = '';
 
     this._renderContainerTasks(0, Math.min(this._renderSite.length, this._renderFilmsCount));
@@ -82,11 +89,13 @@ export default class GenerateSite {
     this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
     this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
 
+    renderElement(this._renderingHeader, this._renderUserView.getElement(), RenderPosition.BEFOREEND);
+
     if (this._filmsModel.isLoading()) {
-      renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
+      renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), RenderPosition.BEFOREEND);
       this._filmsList = this._renderingMarkup.querySelector('.films-list');
       this._renderFilmsList = this._renderingMarkup.querySelector('.films-list__container');
-      renderElement(this._renderFilmsList,new LoadingMessage().getElement(), renderPosition.BEFOREEND);
+      renderElement(this._renderFilmsList, new LoadingMessage().getElement(), RenderPosition.BEFOREEND);
     } else {
       this.renderCards();
     }
@@ -96,14 +105,13 @@ export default class GenerateSite {
     this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
     this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
     this._renderFilmsList.innerHTML = '';
-    this._renderUser();
     this._renderNumderFilms = new SiteCreateNumberFilms(this._renderSite);
 
     // render Cards
     if (this._renderSite.length === 0) {
       this._renderMessage();
     } else {
-      renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), renderPosition.BEFOREEND);
+      renderElement(this._renderingMarkup, this._renderContainerCards.getElement(), RenderPosition.BEFOREEND);
       this._filmSection = this._renderingMarkup.querySelector('.films');
       this._renderSort();
       this._filmsList = this._renderingMarkup.querySelector('.films-list');
@@ -112,31 +120,33 @@ export default class GenerateSite {
 
       [this._topRateOne, this._mostCommented] = this._renderingMarkup.querySelectorAll('.films-list--extra .films-list__container');
 
-      if (this._renderSite.length >= 2) {
+      if (this._renderSite.length >= EXTRA) {
         for (let i = 0; i < EXTRA; i++) {
-          this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], renderPosition.BEFOREEND));
+          this._mapTopRate.set(this._renderSite[i].id, this._renderComponent(this._topRateOne, this._renderSite[i], RenderPosition.BEFOREEND));
         }
 
         for (let i = 0; i < EXTRA; i++) {
-          this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], renderPosition.BEFOREEND));
+          this._mapTopComment.set(this._renderSite[i].id, this._renderComponent(this._mostCommented, this._renderSite[i], RenderPosition.BEFOREEND));
         }
       }
       this._renderLoadMoreButton();
     }
-    renderElement(this._renderingMarkup, this._stats.getElement(), renderPosition.BEFOREEND);
+    renderElement(this._renderingMarkup, this._stats.getElement(), RenderPosition.BEFOREEND);
 
     this._renderNumberFilm();
 
   }
 
   _showHideStats(evt) {
-    if (evt !== 'showStats' && evt !== 'showFilms') {
-      return;
-    }
-    if (evt === 'showStats') {
-      this._showStats();
-    } else {
-      this._showFilms();
+    switch (evt) {
+      case 'showStats':
+        this._showStats();
+        break;
+      case 'showFilms':
+        this._showFilms();
+        break;
+      default:
+        break;
     }
   }
 
@@ -151,24 +161,23 @@ export default class GenerateSite {
     //+update film in this._renderSite
 
     this._api.updateMovie(film)
-      .then(() => {
-        this._filmsModel.updateFilm(film);
+      .then((responseFilm) => {
+        this._filmsModel.updateFilm(responseFilm);
 
         this._renderSite = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
         this._sourcedFilms = this._filmsModel.getTasks(this._filterModel.getFilter()).slice();
-        this._renderUser();
-        this._handleChangeFilter('addToList', this._filterModel.getFilter());
+        this._handleChangeFilter('addToList', this._filterModel.getFilter(), responseFilm);
 
-        if (this._mapMain.has(film.id)) {
-          this._mapMain.get(film.id).init(film);
+        if (this._mapMain.has(responseFilm.id)) {
+          this._mapMain.get(responseFilm.id).init(responseFilm);
         }
 
-        if (this._mapTopComment.has(film.id)) {
-          this._mapTopComment.get(film.id).init(film);
+        if (this._mapTopComment.has(responseFilm.id)) {
+          this._mapTopComment.get(responseFilm.id).init(responseFilm);
         }
 
-        if (this._mapTopRate.has(film.id)) {
-          this._mapTopRate.get(film.id).init(film);
+        if (this._mapTopRate.has(responseFilm.id)) {
+          this._mapTopRate.get(responseFilm.id).init(responseFilm);
         }
       });
   }
@@ -193,14 +202,8 @@ export default class GenerateSite {
   }
 
   _renderSort() {
-    renderElement(this._filmSection, this._renderingSortMenu.getElement(), renderPosition.AFTERBEGIN);
+    renderElement(this._filmSection, this._renderingSortMenu.getElement(), RenderPosition.AFTERBEGIN);
     this._renderingSortMenu.sortTypeChangeHandler(this._sortByData);
-  }
-
-  _renderUser() {
-    this._renderUserView.getElement().remove();
-    this._renderUserView.updateFilms(this._filmsModel.getTasks(this._filterModel.getFilter()));
-    renderElement(this._renderingHeader, this._renderUserView.getElement(), renderPosition.BEFOREEND);
   }
 
   // BUTTON RENDERING
@@ -212,7 +215,12 @@ export default class GenerateSite {
       this._renderSite
         .slice(from, to)
         .forEach((film) => {
-          this._mapMain.set(film.id, this._renderComponent(this._renderFilmsList, film, renderPosition.BEFOREEND));
+          const currentFilmComponent = this._mapMain.get(film.id);
+          if (currentFilmComponent) {
+            currentFilmComponent.init(film);
+          } else {
+            this._mapMain.set(film.id, this._renderComponent(this._renderFilmsList, film, RenderPosition.BEFOREEND));
+          }
         });
     }
   }
@@ -228,7 +236,7 @@ export default class GenerateSite {
 
   _renderLoadMoreButton() {
     if (this._renderFilmsCount < this._sourcedFilms.length) {
-      renderElement(this._filmsList, this._renderButton.getElement(), renderPosition.BEFOREEND);
+      renderElement(this._filmsList, this._renderButton.getElement(), RenderPosition.BEFOREEND);
       this._renderButton.setClickHandler(this._handleLoadMoreButtonClick);
     } else {
       remove(this._renderButton);
@@ -238,16 +246,15 @@ export default class GenerateSite {
   _renderComponent(positionElementMenu, filmForRender) {
     const popupTaskPresenter = new PopupPresenter(positionElementMenu, this._changeData, this._changeMode, this._api);
     popupTaskPresenter.init(filmForRender);
-    popupTaskPresenter[filmForRender.id] = popupTaskPresenter;
     return popupTaskPresenter;
   }
 
   _renderNumberFilm() {
-    renderElement(this._renderFooter, this._renderNumderFilms.getElement(), renderPosition.BEFOREEND);
+    renderElement(this._renderFooter, this._renderNumderFilms.getElement(), RenderPosition.BEFOREEND);
   }
 
   _renderMessage() {
-    renderElement(this._renderFilmsList, this._renderEmptyMessage.getElement(), renderPosition.AFTERBEGIN);
+    renderElement(this._renderFilmsList, this._renderEmptyMessage.getElement(), RenderPosition.AFTERBEGIN);
   }
 
   _showStats() {

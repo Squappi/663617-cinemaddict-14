@@ -55,10 +55,7 @@ export default class PopupPresenter {
           this._film.allMovies,
           {
             history: !this._film.allMovies.history,
-            watchHistory: {
-              isWatch: !this._film.allMovies.history,
-              watchDate: (this._film.allMovies.history) ? null : new Date(),
-            },
+            watchDate: this._film.allMovies.history ? null : new Date(),
           },
         ),
       },
@@ -126,21 +123,25 @@ export default class PopupPresenter {
     this._popupFilm.setCloseHandler(this._handleClosePopup);
 
     this._popupFilm._addComment((film, comment) => {
-      return this._api.addComment(film, comment).then(() => {
-        this._loadComments();
-        this._popupFilm.clearTextArea();
-      }).catch(() => {
-        this._popupFilm.errorComment();
-      });
+      return this._api.addComment(film, comment)
+        .then((responseFilm) => {
+          this._popupFilm.clearTextArea();
+          this._changeData(responseFilm);
+          //this._loadComments();
+        }).catch((e) => {
+          this._popupFilm.errorComment();
+        });
     });
 
-    if (!previousFilmRender) {
+    if (previousFilmRender && this._filmList.contains(previousFilmRender.getElement())) {
+      this._filmList.replaceChild(this._filmRender.getElement(), previousFilmRender.getElement());
+    } else {
       renderElement(this._filmList, this._filmRender.getElement());
     }
 
 
     if (this._mode === Mode.EDITING) {
-      if (previousPopup) {
+      if (previousPopup && document.body.contains(previousPopup.getElement())) {
         document.body.replaceChild(this._popupFilm.getElement(), previousPopup.getElement());
         this._loadComments();
       } else {
@@ -173,6 +174,7 @@ export default class PopupPresenter {
     this._popupFilm.getElement().remove();
     document.removeEventListener('keydown', this._handleClosePopupEsc);
     document.body.classList.remove('hide-overflow');
+    this._mode = Mode.DEFAULT;
   }
 
   _handleOpenPopup() {

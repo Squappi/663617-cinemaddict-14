@@ -4,7 +4,7 @@ import Smart from '../presenter/smart.js';
 import he from 'he';
 
 const EMOJIES = ['smile', 'sleeping', 'puke', 'angry'];
-const TIME = 1000;
+const SHAKE_TIME = 1000;
 
 const createPopup = (film, state = {}, comment) => {
   const {
@@ -117,7 +117,7 @@ const createPopup = (film, state = {}, comment) => {
             <img src="./images/emoji/${emotion ? emotion + '.png' : 'smile.png'}" width="55" height="55" alt="emoji-smile">
           </span>
           <div>
-            <p class="film-details__comment-text">${comment}</p>
+            <p class="film-details__comment-text">${he.encode(comment)}</p>
             <p class="film-details__comment-info">
               <span class="film-details__comment-author">${author}</span>
               <span class="film-details__comment-day">${dayjs(data).format('YYYY/MM/DD HH:MM')}</span>
@@ -257,8 +257,8 @@ export default class SiteCreatePopup extends Smart {
 
   _addTextAreaListener() {
     this.getElement().querySelector('.film-details__comment-input').addEventListener('keydown', (evt) => {
-      if((evt.metaKey || evt.ctrlKey) && evt.keyCode === 13) {
-        if(evt.target.value.replace(/\s/g,'').length !== 0 || !this._state.emoji) {
+      if ((evt.metaKey || evt.ctrlKey) && evt.key === 'Enter') {
+        if (evt.target.value.replace(/\s/g, '').length !== 0 || !this._state.emoji) {
           evt.target.disabled = true;
           this.getElement().querySelectorAll('input.film-details__emoji-item').forEach((element) => {
             element.disabled = true;
@@ -320,6 +320,6 @@ export default class SiteCreatePopup extends Smart {
     const timeout = setTimeout(() => {
       this.getElement().querySelector('.film-details__new-comment').classList.remove('shake');
       clearTimeout(timeout);
-    }, TIME);
+    }, SHAKE_TIME);
   }
 }

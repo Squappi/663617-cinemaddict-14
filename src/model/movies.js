@@ -12,10 +12,10 @@ export default class Movies extends Observer {
     return this._isLoading;
   }
 
-  setTasks(films) {
+  setFilms(films) {
     this._films.push(...films);
     this._isLoading = false;
-    this._notify('isLoading', films);
+    this._notify('setFilms', films);
   }
 
   getTasks(filter) {
@@ -73,11 +73,8 @@ export default class Movies extends Observer {
         allMovies: {
           watchList: film.user_details.watchlist,
           history: film.user_details.already_watched,
-          favorites: film.user_details.favorite,
-        },
-        watchHistory: {
-          isWatch: film.user_details.already_watched,
           watchDate: dayjs(film.user_details.watching_date),
+          favorites: film.user_details.favorite,
         },
       },
     );
@@ -111,8 +108,8 @@ export default class Movies extends Observer {
         },
         'user_details': {
           'watchlist': movie.allMovies.watchList,
-          'already_watched': movie.watchHistory.isWatch,
-          'watching_date': movie.watchHistory.watchDate,
+          'already_watched': movie.allMovies.history,
+          'watching_date': movie.allMovies.watchDate,
           'favorite': movie.allMovies.favorites,
         },
       },
@@ -133,7 +130,6 @@ export default class Movies extends Observer {
     delete adaptedMovie.country;
     delete adaptedMovie.actors;
     delete adaptedMovie.allMovies;
-    delete adaptedMovie.watchHistory;
     delete adaptedMovie.originalTitle;
 
     return adaptedMovie;

@@ -1,7 +1,7 @@
 import Smart from '../presenter/smart';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { statsData } from '../utils';
+import {getUserRank, statsData} from '../utils';
 import { formatDuration } from '../mock/const';
 
 const countStatistic = (films) => {
@@ -98,19 +98,11 @@ const createStatistic = (statistic) => {
 
 
 const createStats = (statistic, filmCount, currentFilter) => {
-  let rang = '';
-  if(filmCount >= 1 && filmCount <= 10) {
-    rang = 'novice';
-  } else if (filmCount >= 11 && filmCount <= 20) {
-    rang = 'fan';
-  } else if (filmCount > 20) {
-    rang = 'movie buff';
-  }
   return `<section class="statistic visually-hidden">
   <p class="statistic__rank">
     Your rank
     <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
-    <span class="statistic__rank-label">${rang}</span>
+    <span class="statistic__rank-label">${getUserRank(filmCount)}</span>
   </p>
 
   <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">
@@ -166,7 +158,7 @@ export default class StatsView extends Smart {
   recalculate() {
     this._statistic = countStatistic(this._filmModel.getTasks('history')
       .filter((film) => {
-        return statsData(film.watchHistory.watchDate, new Date(), this._currentFilter);
+        return statsData(film.allMovies.watchDate, new Date(), this._currentFilter);
       }));
   }
 

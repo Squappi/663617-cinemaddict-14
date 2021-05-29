@@ -1,5 +1,5 @@
 import SiteMenuFilter from '../mock/site-menu-filter.js';
-import {renderElement, renderPosition} from '../utils';
+import {renderElement, RenderPosition} from '../utils';
 
 export default class FilterPresenter {
   constructor(filmsModel, renderContainer, filterModel) {
@@ -17,10 +17,7 @@ export default class FilterPresenter {
     this._filmsModel.addObserver(this.loading);
   }
 
-  loading(evt) {
-    if (evt !== 'isLoading') {
-      return ;
-    }
+  loading() {
     this.init();
   }
 
@@ -38,7 +35,7 @@ export default class FilterPresenter {
       const parentElement = oldFilterView.getElement().parentElement;
       parentElement.replaceChild(this._renderFilterView.getElement(), oldFilterView.getElement());
     } else {
-      renderElement(this._renderingMarkup, this._renderFilterView.getElement(), renderPosition.BEFOREEND);
+      renderElement(this._renderingMarkup, this._renderFilterView.getElement(), RenderPosition.BEFOREEND);
     }
 
     this._renderFilterView.setFilterWatchlistHandler(this._addFilter);
